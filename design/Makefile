@@ -11,7 +11,10 @@ WCAML_CMO=$(addsuffix .cmo, $(WCAML_SRC))
 
 .PHONY: all byte doc
 
-all: byte doc
+all:
+	$(MAKE) depend
+	$(MAKE) byte doc
+
 byte: $(WCAML_CMI) $(WCAML_CMO)
 
 # --------------------------------------------------------------------------
