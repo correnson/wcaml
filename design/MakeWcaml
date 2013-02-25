@@ -1,0 +1,15 @@
+# --------------------------------------------------------------------------
+# ---  WCAML MODULES                                                     ---
+# --------------------------------------------------------------------------
+
+# Modules with fixed Implementation
+WCAML_LIB= property signal
+
+# Modules with fixed API
+WCAML_API= 
+
+WCAML_SRC=$(WCAML_LIB) $(WCAML_API)
+WCAML_MLI=$(addsuffix .mli,$(WCAML_SRC))
+WCAML_ML=$(addsuffix .ml,$(WCAML_SRC))
+
+# --------------------------------------------------------------------------

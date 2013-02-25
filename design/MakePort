@@ -1,0 +1,20 @@
+# --------------------------------------------------------------------------
+# ---  Resources for building Port                                       ---
+# --------------------------------------------------------------------------
+
+WCAML_PORT= \
+  $(addprefix ../wcaml/,$(WCAML_MLI)) \
+  $(addprefix ../wcaml/,$(addsuffix .ml,$(WCAML_LIB)))
+
+.PHONY: port
+
+port: .port
+.port: $(WCAML_PORT)
+	@echo "Importing WCaml API"
+	@cp -f $(WCAML_PORT) .
+	@chmod a-w $(WCAML_PORT)
+	@touch .port
+
+clean::
+	rm -f .port
+
