@@ -2,9 +2,11 @@
 # ---  Resources for building Port                                       ---
 # --------------------------------------------------------------------------
 
-WCAML_PORT= \
-  $(addprefix ../wcaml/,$(WCAML_MLI)) \
-  $(addprefix ../wcaml/,$(addsuffix .ml,$(WCAML_LIB)))
+WCAML_LOCAL= \
+	$(addsuffix .ml,$(WCAML_LIB)) \
+	$(addsuffix .mli,$(WCAML_LIB) $(WCAML_API))
+
+WCAML_PORT= $(addprefix ../design/,$(WCAML_LOCAL))
 
 .PHONY: port
 
@@ -12,9 +14,9 @@ port: .port
 .port: $(WCAML_PORT)
 	@echo "Importing WCaml API"
 	@cp -f $(WCAML_PORT) .
-	@chmod a-w $(WCAML_PORT)
-	@touch .port
+	@chmod a-w $(WCAML_LOCAL)
+	@echo $(WCAML_LOCAL) > .port
 
 clean::
-	rm -f .port
+	rm -f .port $(WCAML_LOCAL)
 
