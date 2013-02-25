@@ -11,3 +11,10 @@ object
   method set_prop : 'a. 'a key -> 'a -> unit
   method remove_prop : 'a. 'a key -> unit
 end
+
+class ['a] cell : string ->
+object
+  method get : 'a
+  method set : 'a -> unit
+  method release : unit
+end

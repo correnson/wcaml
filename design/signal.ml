@@ -34,4 +34,6 @@ object(self)
   inherit ['a] signal
   method get = current
   method set x = current <- x ; self#fire x
+  method send : 'b. ('a -> 'b) -> unit -> 'b = fun f () -> f current
 end
+

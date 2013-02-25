@@ -4,8 +4,8 @@
 
 include MakeWcaml
 
-WCAML_CMI=$(addsuffix .cmi, $(WCAML_SRC))
-WCAML_CMO=$(addsuffix .cmo, $(WCAML_SRC))
+WCAML_CMI=$(addsuffix .cmi, $(WCAML_LIB) $(WCAML_API))
+WCAML_CMO=$(addsuffix .cmo, $(WCAML_LIB))
 
 # --------------------------------------------------------------------------
 

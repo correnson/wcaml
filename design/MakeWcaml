@@ -6,10 +6,9 @@
 WCAML_LIB= property signal
 
 # Modules with fixed API
-WCAML_API= 
+WCAML_API= main widget window
 
-WCAML_SRC=$(WCAML_LIB) $(WCAML_API)
-WCAML_MLI=$(addsuffix .mli,$(WCAML_SRC))
-WCAML_ML=$(addsuffix .ml,$(WCAML_SRC))
+WCAML_MLI=$(addsuffix .mli,$(WCAML_LIB) $(WCAML_API))
+WCAML_ML=$(addsuffix .ml,$(WCAML_LIB))
 
 # --------------------------------------------------------------------------

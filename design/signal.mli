@@ -24,4 +24,5 @@ object
   inherit ['a] signal
   method set : 'a -> unit
   method get : 'a
+  method send : 'b. ('a -> 'b) -> unit -> 'b
 end
