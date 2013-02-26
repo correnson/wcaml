@@ -26,7 +26,7 @@ end
 class ['a] selector : 'a ->
 object
   inherit ['a] signal
-  method set : 'a -> unit
+  method set : 'a action
   method get : 'a
   method send_to : 'a action -> unit action
 end
