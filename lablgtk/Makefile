@@ -32,12 +32,16 @@ wcaml.cmx: port $(WCAML_TYPES) $(WCAML_CMI) $(WCAML_CMX)
 
 depend: port
 
-LIBDIR?=$(shell $(OCAMLOPT) -where)
+INSTALL_DIR?=$(shell $(OCAMLOPT) -where)/wcaml
 
 install:
-	@echo "Install to $(LIBDIR)/wcaml"
-	@mkdir -p $(LIBDIR)/wcaml
-	@cp -f wcaml.cmi wcaml.cmxa wcaml.a $(LIBDIR)/wcaml/
+	@echo "Install to $(INSTALL_DIR)"
+	@mkdir -p $(INSTALL_DIR)
+	@cp -f wcaml.cmi wcaml.cmxa wcaml.a $(INSTALL_DIR)
+
+uninstall:
+	@echo "Removing $(INSTALL_DIR)"
+	@rm -fr $(INSTALL_DIR)
 
 # --------------------------------------------------------------------------
 include ../design/MakeOcaml
