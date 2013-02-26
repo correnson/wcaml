@@ -15,7 +15,8 @@ port: .port
 	@echo "Importing WCaml API"
 	@cp -f $(WCAML_PORT) .
 	@chmod a-w $(WCAML_LOCAL)
-	@echo $(WCAML_LOCAL) > .port
+	@rm -f .port
+	@for i in $(WCAML_LOCAL) ; do echo $$i >> .port ; done
 
 clean::
 	rm -f .port $(WCAML_LOCAL)
