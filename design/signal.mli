@@ -4,7 +4,12 @@
 type 'a action = 'a -> unit
 type 'a callback = 'a action -> unit
 
-val apply : 'a action list -> 'a action
+(** {1 Iterators} *)
+
+val apply  : 'a action list -> 'a action
+val option : 'a action -> 'a option action
+val list   : 'a action -> 'a list action
+val array  : 'a action -> 'a array action
 
 class virtual ['a] handler :
 object

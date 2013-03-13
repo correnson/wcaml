@@ -1,7 +1,7 @@
 open Widget
 open Signal
 
-class main ~id ?(title="") ?content () =
+class toplevel ~id ?(title="") ?content () =
   let win = GWindow.window
     ~kind:`TOPLEVEL
     ~resizable:true
@@ -18,7 +18,7 @@ object(self)
   val mutable title = title
   initializer
     begin
-      Port.option self#set_content content ;
+      Signal.option self#set_content content ;
       let callback _ev = close#fire () ; true in
       ignore (win#event#connect#delete ~callback) ;
     end

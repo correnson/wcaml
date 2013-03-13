@@ -4,8 +4,6 @@
 
 open Signal
 
-let option f = function None -> () | Some x -> f x
-
 let widget : GObj.widget Property.key = Property.register ()
 
 class widget (w : #GObj.widget) =

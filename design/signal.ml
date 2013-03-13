@@ -6,6 +6,9 @@ type 'a action = 'a -> unit
 type 'a callback = 'a action -> unit
 
 let apply demon x = List.iter (fun f -> f x) demon
+let option f = function None -> () | Some x -> f x
+let array = Array.iter
+let list = List.iter
 
 class virtual ['a] handler =
 object(self)
