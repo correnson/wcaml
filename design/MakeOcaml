@@ -17,13 +17,13 @@ clean::
 .SUFFIXES: .ml .mli .mll .mly .cmo .cmi .cmx
 
 .ml.cmo:
-	$(OCAMLC) $(OPTCMO) -c $(INCLUDES) $<
+	$(OCAMLC) $(OPTML) $(OPTCMO) -c $(INCLUDES) $<
 
 .mli.cmi:
-	$(OCAMLC) $(OPTCMI) -c $(INCLUDES) $<
+	$(OCAMLC) $(OPTML) $(OPTCMI) -c $(INCLUDES) $<
 
 .ml.cmx:
-	$(OCAMLOPT) $(OPTCMX) -c $(INCLUDES) $<
+	$(OCAMLOPT) $(OPTML) $(OPTCMX) -c $(INCLUDES) $<
 
 .mll.ml:
 	@rm -f $@
