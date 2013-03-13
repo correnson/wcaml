@@ -15,7 +15,7 @@ include ../design/MakePort
 
 # --------------------------------------------------------------------------
 
-OPTML= -w PSUZ -warn-error PSUZ
+OPTML= -w PSUZMV -warn-error PSUZMV
 OPTCMX= -for-pack Wcaml
 
 WCAML_SRC= 

@@ -34,14 +34,14 @@ object(self)
 end
 
 class ['a] selector default =
-object(self)
+object
   val mutable current : 'a = default
   inherit ['a] signal as s
   method get = current
   method set x = current <- x ; s#fire x
-  method fire x = current <- x ; s#fire x
+  method! fire x = current <- x ; s#fire x
     (** Same as [set]. *)
-  method send x () = current <- x ; s#fire x
+  method! send x () = current <- x ; s#fire x
     (** Delayed [set]. *)
   method send_to receiver () : unit = receiver current
     (** The action transmit the current value to receiver.

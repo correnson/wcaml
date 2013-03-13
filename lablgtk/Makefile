@@ -16,6 +16,7 @@ include ../design/MakePort
 # --------------------------------------------------------------------------
 
 INCLUDES= -I +lablgtk2
+OPTML= -w PSUZMV -warn-error PSUZMV
 OPTCMX= -for-pack Wcaml
 
 WCAML_SRC= port window main
