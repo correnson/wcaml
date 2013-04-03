@@ -31,7 +31,7 @@ OBJC= WSmain.o
 
 opt: wcaml.cmxa 
 wcaml.cmxa: wcaml.cmx $(OBJC)
-	$(OCAMLMKLIB) -o wcaml wcaml.cmx $(OBJC)
+	$(OCAMLMKLIB) -framework AppKit -o wcaml wcaml.cmx $(OBJC)
 
 wcaml.cmx: port $(WCAML_TYPES) $(WCAML_CMI) $(WCAML_CMX)
 	$(OCAMLOPT) -o wcaml.cmx -pack $(WCAML_TYPES) $(WCAML_CMX)

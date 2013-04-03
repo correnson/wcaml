@@ -18,6 +18,7 @@ object(self)
   val mutable title = title
   initializer
     begin
+      ignore id ;
       Signal.option self#set_content content ;
       let callback _ev = close#fire () ; true in
       ignore (win#event#connect#delete ~callback) ;

@@ -37,16 +37,13 @@ sinclude .depend
 
 #######################################################
 
-#OPTC=$(shell if which ocamlc.opt > /dev/null; then echo -n .opt; else echo -n ""; fi)
-OPTC?=.opt
-OCAMLC=$(OCAMLROOT)ocamlc$(OPTC)
-OCAMLOPT=$(OCAMLROOT)ocamlopt$(OPTC)
-OCAMLLEX=$(OCAMLROOT)ocamllex$(OPTC)
-OCAMLYACC=$(OCAMLROOT)ocamlyacc
-OCAMLDOC=$(OCAMLROOT)ocamldoc
-OCAMLDEP=$(OCAMLROOT)ocamldep
-OCAMLMKLIB=$(OCAMLROOT)ocamlmklib
-OCAMLLIB=$(shell $(OCAMLC) -where)
-OCAMLBIN=$(shell dirname $(shell which $(OCAMLC)))
+OCAMLC=ocamlfind ocamlc
+OCAMLOPT=ocamlfind ocamlopt
+OCAMLLEX=ocamlfind ocamllex
+OCAMLYACC=ocamlfind ocamlyacc
+OCAMLDOC=ocamlfind ocamldoc
+OCAMLDEP=ocamlfind ocamldep
+OCAMLMKLIB=ocamlfind ocamlmklib
+OCAMLLIB=$(shell ocamlc -where)
 
 #######################################################
