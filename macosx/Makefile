@@ -38,12 +38,14 @@ wcaml.cmx: port $(WCAML_TYPES) $(WCAML_CMI) $(WCAML_CMX)
 
 depend: port
 
+# --------------------------------------------------------------------------
+
 INSTALL_DIR?=$(shell $(OCAMLOPT) -where)/wcaml
 
 install:
 	@echo "Install to $(INSTALL_DIR)"
 	@mkdir -p $(INSTALL_DIR)
-	@cp -f wcaml.cmi wcaml.cmxa wcaml.a $(INSTALL_DIR)
+	@cp -f META wcaml.cmi wcaml.cmxa wcaml.a $(INSTALL_DIR)
 
 uninstall:
 	@echo "Removing $(INSTALL_DIR)"
