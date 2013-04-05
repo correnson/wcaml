@@ -2,9 +2,10 @@
 # --- WCAML API                                                          ---
 # --------------------------------------------------------------------------
 
-.PHONY: all opt
+.PHONY: all opt rebuild
 
-all:
+all: opt
+rebuild:
 	$(MAKE) depend
 	$(MAKE) opt
 
@@ -28,7 +29,7 @@ opt: wcaml.cmxa
 wcaml.cmxa: wcaml.cmx
 	$(OCAMLOPT) -o wcaml.cmxa -a wcaml.cmx
 
-wcaml.cmx: port $(WCAML_TYPES) $(WCAML_CMI) $(WCAML_CMX)
+wcaml.cmx: .port $(WCAML_TYPES) $(WCAML_CMX)
 	$(OCAMLOPT) -o wcaml.cmx -pack $(WCAML_TYPES) $(WCAML_CMX)
 
 depend: port
