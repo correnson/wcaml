@@ -17,6 +17,6 @@
 //------------------------------------
 //--- Usefull Macros
 //------------------------------------
-#define CS_ID(CNAME,vid) ((CNAME*) (vid))
-#define CS_BOOL(v) ( (v) == Val_true ? YES : NO )
+#define ID(CNAME,vid) ((CNAME*) (vid))
+#define BOOL(v) ( (v) == Val_true ? YES : NO )
 //------------------------------------
