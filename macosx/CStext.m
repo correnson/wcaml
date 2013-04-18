@@ -1,4 +1,4 @@
-#import "WStext.h"
+#import "CStext.h"
 
 value wcaml_value_of_nsstring(NSString *theText)
 {
