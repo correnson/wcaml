@@ -39,11 +39,11 @@ sinclude .depend
 
 OCAMLC=ocamlfind ocamlc
 OCAMLOPT=ocamlfind ocamlopt
-OCAMLLEX=ocamlfind ocamllex
-OCAMLYACC=ocamlfind ocamlyacc
 OCAMLDOC=ocamlfind ocamldoc
 OCAMLDEP=ocamlfind ocamldep
 OCAMLMKLIB=ocamlfind ocamlmklib
+OCAMLLEX=ocamllex
+OCAMLYACC=ocamlyacc
 OCAMLLIB=$(shell ocamlc -where)
 
 #######################################################

@@ -18,8 +18,5 @@ object(self)
     = fun (k : 'a key) v -> Hashtbl.replace bundle k (Obj.repr v)
   method remove_prop : 'a. 'a key -> unit
     = fun (k : 'a key) -> Hashtbl.remove bundle k
-  val mutable finalizer = []
-  method release () = List.iter (fun f -> f ()) finalizer
-  method on_release f = finalizer <- f :: finalizer
 end
 

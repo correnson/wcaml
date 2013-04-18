@@ -20,7 +20,7 @@ INCLUDES= -package lablgtk2
 OPTML= -w PSUZMV -warn-error PSUZMV
 OPTCMX= -for-pack Wcaml
 
-WCAML_SRC= port window main
+WCAML_SRC= port main userfile user window
 WCAML_TYPES= widget.cmi
 WCAML_CMI=$(addsuffix .cmi, $(WCAML_LIB) $(WCAML_SRC))
 WCAML_CMX=$(addsuffix .cmx, $(WCAML_LIB) $(WCAML_SRC))
@@ -32,7 +32,10 @@ wcaml.cmxa: wcaml.cmx
 wcaml.cmx: .port $(WCAML_TYPES) $(WCAML_CMX)
 	$(OCAMLOPT) -o wcaml.cmx -pack $(WCAML_TYPES) $(WCAML_CMX)
 
-depend: port
+depend: port userfile.ml
+
+clean::
+	rm -f userfile.ml
 
 # --------------------------------------------------------------------------
 
