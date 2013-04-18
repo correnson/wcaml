@@ -4,7 +4,6 @@
 
 open Event
 
-let appname = ref "wcaml"
 let widget : GObj.widget Property.key = Property.register ()
 
 class widget (w : #GObj.widget) =

@@ -1,9 +1,8 @@
+(** {1 Main Entry Points} *)
 
 open Event
 
-(** {1 Main Entry Points} *)
-
-val init : appid:string -> unit (** To be called {i before} any call to the library. *)
+val init : unit -> unit (** To be called {i before} any call to the library. *)
 val main : unit -> unit (** Runs the main event loop. *)
 val quit : unit -> unit (** Quits the main event loop. *)
 

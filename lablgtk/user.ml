@@ -26,7 +26,7 @@ let home () =
   let dir = 
     try Sys.getenv "HOME"
     with Not_found -> "." 
-  in Filename.concat dir !Port.appname
+  in Filename.concat dir !Config.app
 
 let load () =
   Userfile.parse 
