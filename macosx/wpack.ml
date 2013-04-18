@@ -7,18 +7,22 @@ let name = ref ""
 let version = ref "0.1"
 let domain = ref "wcaml.org"
 let bundle = ref ""
+let config = ref ""
 
 let throw p = Format.eprintf "[WCaml] Don't known what to do with '%s'" p
 
 let configure () =
   begin
-    match !app , !name with
-      | "" , "" -> app := "myapp" ; name := "MyApp"
-      | "" , t -> app := String.lowercase t
-      | a , "" -> name := String.capitalize a
-      | _ -> ()
-  end ;
-  if !bundle = "" then bundle := !name ^ ".app"
+    begin
+      match !app , !name with
+	| "" , "" -> app := "myapp" ; name := "MyApp"
+	| "" , t -> app := String.lowercase t
+	| a , "" -> name := String.capitalize a
+	| _ -> ()
+    end ;
+    if !bundle = "" then bundle := !name ^ ".app" ;
+    if !config = "" then config := !app ^ "_config.ml" ;
+  end
 
 (* -------------------------------------------------------------------------- *)
 (* --- Info.plist                                                         --- *)
@@ -28,7 +32,8 @@ let infop_key out key value =
   Printf.fprintf out "  <key>%s</key><string>%s</string>\n" key value
 
 let infop_file () =
-  let file = Filename.concat "%s/Contents/Info.plist" !bundle in
+  let file = Printf.sprintf "%s/Contents/Info.plist" !bundle in
+  Format.eprintf "[WCaml] %s@." file ;
   let out = open_out file in
   begin
     output_string out "<plist version=\"1.0\">\n<dict>\n" ;
@@ -54,8 +59,8 @@ let config_key fmt key value =
   Format.fprintf fmt "let () = Config.%s := %S@\n" key !value
 
 let config_file () =
-  let file = Printf.sprintf "%s_config.ml" !app in
-  let out = open_out file in
+  Format.eprintf "[WCaml] %s@." !config ;
+  let out = open_out !config in
   let fmt = Format.formatter_of_out_channel out in
   begin
     config_key fmt "app" app ;
@@ -70,7 +75,7 @@ let config_file () =
 (* --- Application Bundle                                                 --- *)
 (* -------------------------------------------------------------------------- *)
 
-let exec_cmd cmd = 
+let exec cmd = 
   let st = Sys.command cmd in
   if st <> 0 then
     begin
@@ -78,19 +83,11 @@ let exec_cmd cmd =
       exit st ;
     end
 
-let exec cmd = 
-  let buffer = Buffer.create 80 in
-  Format.kfprintf
-    (fun fmt -> 
-       Format.pp_print_flush fmt () ;
-       exec_cmd (Buffer.contents buffer))
-    (Format.formatter_of_buffer buffer)
-    cmd
-
 let app_bundle () =
   begin
-    exec "mkdir -p %s/Contents/MacOS" !bundle ;
-    exec "SetFile -a B %s" !bundle ;
+    Format.printf "[WCaml] %s/Contents/MacOS@." !bundle ;
+    exec (Printf.sprintf "mkdir -p %s/Contents/MacOS" !bundle) ;
+    exec (Printf.sprintf "SetFile -a B %s" !bundle) ;
   end
 
 (* -------------------------------------------------------------------------- *)
@@ -101,10 +98,12 @@ let () =
   begin
     Arg.parse
       [
-	"-a" , Arg.Set_string app , "Application Identifier ('myapp')" ;
-	"-t" , Arg.Set_string name , "Application Title ('MyApp')" ;
+	"-a" , Arg.Set_string name , "Application Name ('MyApp')" ;
+	"-e" , Arg.Set_string app , "Application Executable ('myapp')" ;
 	"-v" , Arg.Set_string version , "Application Version ('0.1')" ;
 	"-d" , Arg.Set_string domain , "Application Domain ('wcaml.org')" ;
+	"-b" , Arg.Set_string bundle , "Bundle File ('MyApp.app')" ;
+	"-c" , Arg.Set_string config , "Configuration File ('myapp_config.ml')" ;
       ] throw "wpack [options]" ;
     configure () ;
     config_file () ;
