@@ -4,10 +4,15 @@
 
 .PHONY: all opt rebuild
 
-all: opt
+all: opt wcaml
 rebuild:
 	$(MAKE) depend
-	$(MAKE) opt
+	$(MAKE) all
+
+# --------------------------------------------------------------------------
+
+wcaml: wpack.ml
+	ocamlopt -o wcaml wpack.ml
 
 # --------------------------------------------------------------------------
 
@@ -19,14 +24,14 @@ include ../design/MakePort
 OPTML= -w PSUZMV -warn-error PSUZMV
 OPTCMX= -for-pack Wcaml
 
-WCAML_SRC= 
+WCAML_SRC= main
 WCAML_TYPES= widget.cmi
 WCAML_CMI=$(addsuffix .cmi, $(WCAML_LIB) $(WCAML_SRC))
 WCAML_CMX=$(addsuffix .cmx, $(WCAML_LIB) $(WCAML_SRC))
 
 # --------------------------------------------------------------------------
 
-OBJC= CSmain.o CStext.o
+OBJC= CSapp.o CSmain.o CStext.o
 
 # --------------------------------------------------------------------------
 
@@ -55,6 +60,9 @@ uninstall:
 # --------------------------------------------------------------------------
 include ../design/MakeOcaml
 # --------------------------------------------------------------------------
+
+CSmain.m: CSapp.h
+
 .m.h: CS.h
 .m.o:
 	gcc -c -I$(OCAMLLIB) -O3 $<

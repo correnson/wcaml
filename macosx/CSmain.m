@@ -1,3 +1,4 @@
+#import "CSapp.h"
 #import "CSmain.h"
 
 // ---------------------------------------------------------------------------
@@ -9,11 +10,11 @@ static NSAutoreleasePool * wcaml_pool = nil ;
 value wcaml_init(value unit)
 {
   wcaml_pool = [[NSAutoreleasePool alloc] init];
-  [NSApplication sharedApplication];
+  [CSApplication sharedApplication];
   return Val_unit ;
 }
 
-value wcaml_run(value unit)
+value wcaml_main(value unit)
 {
   [wcaml_pool release];
   [NSApp run];
