@@ -1,6 +1,6 @@
 (** {1 Common Types and Constants} *)
 
-open Signal
+open Event
 
 class type widget = 
 object

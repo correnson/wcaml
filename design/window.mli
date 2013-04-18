@@ -1,5 +1,5 @@
 open Widget
-open Signal
+open Event
 
 (** Toplevel window *)
 

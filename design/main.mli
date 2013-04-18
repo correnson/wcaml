@@ -1,4 +1,6 @@
 
+open Event
+
 (** {1 Main Entry Points} *)
 
 val init : appid:string -> unit (** To be called {i before} any call to the library. *)

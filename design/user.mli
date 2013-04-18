@@ -1,6 +1,6 @@
 (** User Preferences *)
 
-open Signal
+open Event
 
 type 'a preference = id:string -> default:'a -> 'a selector
 

@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------------
 
 # Modules with fixed Implementation
-WCAML_LIB= property signal
+WCAML_LIB= property event
 
 # Modules with fixed API
 WCAML_API= main user widget window
