@@ -2,7 +2,7 @@
 (* --- LablGTK Port Library                                               --- *)
 (* -------------------------------------------------------------------------- *)
 
-open Signal
+open Event
 
 let appname = ref "wcaml"
 let widget : GObj.widget Property.key = Property.register ()

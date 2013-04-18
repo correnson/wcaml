@@ -16,12 +16,6 @@ val int_list : int list preference
 val float_list : float list preference
 val string_list : string list preference
 
-(** {2 Arrays} *)
-
-val int_array : int array preference
-val float_array : float array preference
-val string_array : string array preference
-
 (** {2 Generic} *)
 
 val create : 
@@ -33,8 +27,3 @@ val create_list :
   encode:('a -> string) ->
   decode:(string -> 'a) ->
   'a list preference
-
-val create_array : 
-  encode:('a -> string) ->
-  decode:(string -> 'a) ->
-  'a array preference

@@ -1,5 +1,5 @@
 open Widget
-open Signal
+open Event
 
 class toplevel ~id ?(title="") ?content () =
   let win = GWindow.window
@@ -10,8 +10,8 @@ class toplevel ~id ?(title="") ?content () =
     ~modal:false
     ~position:`CENTER
     () in
-  let close = new Signal.signal in
-  let focus = new signal in
+  let close = new Event.signal in
+  let focus = new Event.signal in
 object(self)
   inherit Port.widget win
   val mutable saved = true
@@ -19,7 +19,7 @@ object(self)
   initializer
     begin
       ignore id ;
-      Signal.option self#set_content content ;
+      Event.option self#set_content content ;
       let callback _ev = close#fire () ; true in
       ignore (win#event#connect#delete ~callback) ;
     end
