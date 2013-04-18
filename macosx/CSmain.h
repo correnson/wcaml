@@ -1,4 +1,4 @@
-#import "WS.h"
+#import "CS.h"
 
 extern value wcaml_init(value);
 extern value wcaml_run(value);
