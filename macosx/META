@@ -1,4 +1,4 @@
 description = "Graphical User Interface for OCaml"
 requires = ""
-version = "0.1+macosx"
+version = "0.1#macosx"
 archive(native) = "wcaml.cmxa"

@@ -12,7 +12,7 @@ rebuild:
 # --------------------------------------------------------------------------
 
 wcaml: wpack.ml
-	ocamlopt -o wcaml wpack.ml
+	$(OCAMLOPT) -o $@ $<
 
 # --------------------------------------------------------------------------
 
@@ -46,16 +46,12 @@ depend: .port
 
 # --------------------------------------------------------------------------
 
-INSTALL_DIR?=$(shell $(OCAMLOPT) -where)/wcaml
-
 install:
-	@echo "Install to $(INSTALL_DIR)"
-	@mkdir -p $(INSTALL_DIR)
-	@cp -f META wcaml.cmi wcaml.cmxa wcaml.a $(INSTALL_DIR)
+	@ocamlfind remove wcaml
+	@ocamlfind install wcaml META wcaml wcaml.cmi wcaml.cmxa wcaml.a libwcaml.a
 
 uninstall:
-	@echo "Removing $(INSTALL_DIR)"
-	@rm -fr $(INSTALL_DIR)
+	@ocamlfind remove wcaml
 
 # --------------------------------------------------------------------------
 include ../design/MakeOcaml

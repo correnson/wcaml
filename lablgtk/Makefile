@@ -4,10 +4,15 @@
 
 .PHONY: all opt rebuild
 
-all: opt
+all: opt wcaml
 rebuild:
 	$(MAKE) depend
-	$(MAKE) opt
+	$(MAKE) all
+
+# --------------------------------------------------------------------------
+
+wcaml: wpack.ml
+	$(OCAMLOPT) -o $@ $<
 
 # --------------------------------------------------------------------------
 
@@ -39,16 +44,14 @@ clean::
 
 # --------------------------------------------------------------------------
 
-WCAML_LIBDIR?=$(shell $(OCAMLOPT) -where)/wcaml
-
 install:
-	@echo "Install library to $(WCAML_LIBDIR)"
-	@mkdir -p $(WCAML_LIBDIR)
-	@cp -f META wcaml.cmi wcaml.cmxa wcaml.a $(WCAML_LIBDIR)
+	@echo "Install WCaml."
+	@ocamlfind install wcaml META wcaml wcaml.cmi wcaml.cmxa wcaml.a
+	@ocamlfind query wcaml
 
 uninstall:
-	@echo "Removing $(WCAML_LIBDIR)"
-	@rm -fr $(INSTALL_DIR)
+	@echo "Removing WCaml."
+	@ocamlfind remove wcaml
 
 # --------------------------------------------------------------------------
 include ../design/MakeOcaml

@@ -1,4 +1,4 @@
 description = "Graphical User Interface for OCaml"
 requires = "lablgtk2"
-version = "0.1+lablgtk"
+version = "0.1#lablgtk"
 archive(native) = "wcaml.cmxa"
