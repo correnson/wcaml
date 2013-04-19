@@ -5,16 +5,16 @@
 open Port
 open Event
 
-external get_user_string : NSString.t -> NSString.t 
-  = "wcaml_get_user_string"
+external get_user_nsstring : NSString.t -> NSString.t 
+  = "wcaml_get_user_nsstring"
 
-external set_user_string : NSString.t -> NSString.t -> unit 
+external set_user_nsstring : NSString.t -> NSString.t -> unit 
   = "wcaml_set_user_object"
 
-external get_user_array  : NSString.t -> NSString.t NSArray.t
-  = "wcaml_get_user_array"
+external get_user_nsarray  : NSString.t -> NSString.t NSArray.t
+  = "wcaml_get_user_nsarray"
 
-external set_user_array  : NSString.t -> NSString.t NSArray.t -> unit
+external set_user_nsarray  : NSString.t -> NSString.t NSArray.t -> unit
   = "wcaml_set_user_object"
 
 (* -------------------------------------------------------------------------- *)
@@ -41,7 +41,7 @@ object(self)
   inherit ['a] Event.selector default
 
   method private load () =
-    let obj = get_user_string (NSString.of_string id) in
+    let obj = get_user_nsstring (NSString.of_string id) in
     if obj != NSString.nil then
       try self#set (decode (NSString.to_string obj))
       with Invalid_argument _ -> ()
@@ -50,7 +50,7 @@ object(self)
     try 
       let v = NSString.of_string (encode self#get) in
       let k = NSString.of_string id in
-      set_user_string k v
+      set_user_nsstring k v
     with Invalid_argument _ -> ()
       
   initializer
@@ -78,7 +78,7 @@ object(self)
   inherit ['a list] Event.selector default
 
   method private load () =
-    let obj = get_user_array (NSString.of_string id) in
+    let obj = get_user_nsarray (NSString.of_string id) in
     let ids = NSArray.to_list obj in
     self#set (emap (decode << NSString.to_string) ids)
       
@@ -86,7 +86,7 @@ object(self)
     let ids = emap (NSString.of_string << encode) self#get in
     let obj = NSArray.of_list ids in
     let key = NSString.of_string id in
-    set_user_array key obj
+    set_user_nsarray key obj
 
   initializer
     begin
