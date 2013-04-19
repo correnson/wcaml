@@ -6,7 +6,7 @@
 
 all: opt wcaml
 rebuild:
-	$(MAKE) depend
+	$(MAKE) clean depend
 	$(MAKE) all
 
 # --------------------------------------------------------------------------
@@ -46,8 +46,8 @@ clean::
 
 install:
 	@echo "Install WCaml."
+	@ocamlfind remove wcaml
 	@ocamlfind install wcaml META wcaml wcaml.cmi wcaml.cmxa wcaml.a
-	@ocamlfind query wcaml
 
 uninstall:
 	@echo "Removing WCaml."

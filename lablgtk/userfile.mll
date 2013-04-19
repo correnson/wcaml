@@ -58,10 +58,11 @@ and text buffer = parse
       | TEXT s | ID s -> parse_entry f lex a (s::xs)
 
   let parse f file =
-    let inc = open_in file in
-    let lex = Lexing.from_channel inc in
-    try parse_prop f lex ; close_in inc
-    with e -> close_in inc ; raise e
+    if Sys.file_exists file then
+      let inc = open_in file in
+      let lex = Lexing.from_channel inc in
+      try parse_prop f lex ; close_in inc
+      with e -> close_in inc ; raise e
 
   let output_value out a =
     try String.iter 
