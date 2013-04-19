@@ -47,6 +47,10 @@ let rec emap f = function
       try let r = f e in r :: emap f es
       with Invalid_argument _ -> emap f es
 
+(* -------------------------------------------------------------------------- *)
+(* --- Cells                                                              --- *)
+(* -------------------------------------------------------------------------- *)
+
 class ['a] cell 
   ~(encode:('a -> string))
   ~(decode:(string -> 'a))
@@ -68,11 +72,15 @@ object(self)
 
   initializer
     begin
-      Main.on_main#connect self#load ;
+      self#load () ;
       self#on_event self#save ;
     end
 
 end
+
+(* -------------------------------------------------------------------------- *)
+(* --- Lists                                                              --- *)
+(* -------------------------------------------------------------------------- *)
 
 class ['a] clist 
   ~(encode:('a -> string))
@@ -93,7 +101,7 @@ object(self)
 
   initializer
     begin
-      Main.on_main#connect self#load ;
+      self#load () ;
       self#on_event self#save ;
     end
 
