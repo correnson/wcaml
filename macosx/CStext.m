@@ -14,9 +14,7 @@ value wcaml_value_of_nsstring(NSString *theText)
   CAMLreturn( result );
 }
 
-NSString* wcaml_nsstring_create(value v_str)
+NSString* wcaml_nsstring_of_value(value v_str)
 {
-  return [[NSString alloc]
-	       initWithCString:(String_val(v_str))
-		      encoding:NSUnicodeStringEncoding] ;
+  return [[NSString alloc] initWithUTF8String:String_val(v_str)];
 }
