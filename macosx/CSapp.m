@@ -52,20 +52,19 @@
 -(void) makeAppMenu:(NSMenu *)menu
 {
   NSMenuItem * item ;
+  NSString * title ;
   //--- About ---------------
   [[menu addItemWithTitle:[NSString stringWithFormat:@"About %@" , theAppName]
 		   action:@selector(orderFrontStandardAboutPanel:)
 	    keyEquivalent:@""] setTarget:NSApp];
   //--- Preferences ---------------
   [menu addItem:[NSMenuItem separatorItem]];
-  [menu addItemWithTitle:NSLocalizedString(@"Preferences...", nil)
-		  action:NULL keyEquivalent:@","];
+  title = [NSString stringWithFormat:@"Preferences%C", (unichar)0x2026];
+  [menu addItemWithTitle:title action:NULL keyEquivalent:@","];
   //--- Services ------------------
   [menu addItem:[NSMenuItem separatorItem]];
-  item = [menu addItemWithTitle:NSLocalizedString(@"Services", nil)
-			 action:NULL keyEquivalent:@""];
-  NSMenu * servicesMenu = 
-    [[[NSMenu alloc] initWithTitle:@"Services"] autorelease];
+  item = [menu addItemWithTitle:@"Services" action:NULL keyEquivalent:@""];
+  NSMenu * servicesMenu = [[[NSMenu alloc] initWithTitle:@"Services"] autorelease];
   [menu setSubmenu:servicesMenu forItem:item];
   [NSApp setServicesMenu:servicesMenu];
   //--- Hide, Hide Others, Show All ---------
