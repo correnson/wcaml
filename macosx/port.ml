@@ -44,12 +44,10 @@ end
 (* --- Data                                                               --- *)
 (* -------------------------------------------------------------------------- *)
 
-type id = Obj.t
-
 module NSString =
 struct
   type t
-  let id = Obj.repr
+  let nil : t = Obj.magic 0
   external of_string : string -> t = "wcaml_nsstring_of_value"
   external to_string : t -> string = "wcaml_value_of_nsstring"
 end
@@ -60,6 +58,28 @@ end
 
 module NSArray =
 struct
-  type t
-  let id = Obj.repr
+  type 'a t
+  external init : int -> 'a t              = "wcaml_nsarray_init"
+  external count : 'a t -> int             = "wcaml_nsarray_count"
+  external get : 'a t -> int -> 'a         = "wcaml_nsarray_get"
+  external add : 'a t -> 'a -> unit        = "wcaml_nsarray_add"
+  external set : 'a t -> int -> 'a -> unit = "wcaml_nsarray_set"
+
+  let of_list xs =
+    let w = init (List.length xs) in
+    List.iter (add w) xs ; w
+
+  let to_list w =
+    let r = ref [] in
+    for i = count w - 1 downto 0 do
+      r := get w i :: !r
+    done ; !r
+
+  let of_array xs =
+    let w = init (Array.length xs) in
+    Array.iter (add w) xs ; w
+
+  let to_array w =
+    Array.init (count w) (get w)
+
 end

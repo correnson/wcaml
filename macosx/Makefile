@@ -24,7 +24,7 @@ include ../design/MakePort
 OPTML= -w PSUZMV -warn-error PSUZMV
 OPTCMX= -for-pack Wcaml
 
-WCAML_SRC= main port
+WCAML_SRC= main port user
 WCAML_TYPES= widget.cmi
 WCAML_CMI=$(addsuffix .cmi, $(WCAML_LIB) $(WCAML_SRC))
 WCAML_CMX=$(addsuffix .cmx, $(WCAML_LIB) $(WCAML_SRC))
