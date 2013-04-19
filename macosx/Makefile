@@ -31,7 +31,7 @@ WCAML_CMX=$(addsuffix .cmx, $(WCAML_LIB) $(WCAML_SRC))
 
 # --------------------------------------------------------------------------
 
-OBJC= CSapp.o CSmain.o CStext.o CSuser.o
+OBJC= CSapp.o CSmain.o CSdata.o CSuser.o
 
 # --------------------------------------------------------------------------
 
@@ -58,7 +58,7 @@ include ../design/MakeOcaml
 # --------------------------------------------------------------------------
 
 CSmain.m: CSapp.h
-CSuser.m: CStext.h
+CSuser.m: CSdata.h
 
 .m.h: CS.h
 .m.o:
