@@ -11,6 +11,7 @@ value wcaml_init(value unit)
 {
   wcaml_pool = [[NSAutoreleasePool alloc] init];
   [CSApplication sharedApplication];
+  [NSApp finishLaunching];
   return Val_unit ;
 }
 
