@@ -26,7 +26,7 @@ let home () =
   let dir = 
     try Sys.getenv "HOME"
     with Not_found -> "." 
-  in Filename.concat dir !Config.app
+  in Printf.sprintf "%s/.%s.%s.rc" dir !Config.app !Config.domain
 
 let load () =
   Userfile.parse 
