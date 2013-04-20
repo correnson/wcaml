@@ -5,9 +5,9 @@ open Event
 
 class toplevel : id:string -> ?title:string -> ?content:widget -> unit ->
 object
-  inherit widget
-  inherit focus
-  inherit visible
+  inherit Widget.widget
+  inherit Widget.focus
+  inherit Widget.visible
   method on_close : unit callback
   method set_title : string -> unit
   method set_saved : bool -> unit

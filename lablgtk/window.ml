@@ -8,20 +8,37 @@ class toplevel ~id ?(title="") ?content () =
     ~decorated:true
     ~deletable:true
     ~modal:false
-    ~position:`CENTER
+    ~show:true
     () in
   let close = new Event.signal in
   let focus = new Event.signal in
+  let size = User.int_list ~id ~default:[] in
 object(self)
   inherit Port.widget win
-  val mutable saved = true
-  val mutable title = title
+
+  (*--- FRAME ---*)
   initializer
     begin
-      ignore id ;
+      Event.option self#set_content content ;
+    end
+    
+  (*--- CONTENT & CLOSING ---*)
+  initializer
+    begin
       Event.option self#set_content content ;
       let callback _ev = close#fire () ; true in
       ignore (win#event#connect#delete ~callback) ;
+    end
+
+  (*--- RESIZE ---*)
+  method private resize r = size#set [ r.Gtk.width ; r.Gtk.height ]
+  method private initsize = match size#get with
+    | [width;height] -> win#resize ~width ~height
+    | _ -> ()
+  initializer
+    begin
+      ignore (win#misc#connect#size_allocate self#resize) ;
+      self#initsize ;
     end
 
   (*--- FOCUS ---*)
@@ -44,6 +61,8 @@ object(self)
   method hide = win#misc#hide
       
   (*--- DECORATION ---*)
+  val mutable saved = true
+  val mutable title = title
   method private decorate = win#set_title (if saved then title else "* "^title)
   method set_title t = title <- t ; self#decorate
   method set_saved s = saved <- s ; self#decorate
