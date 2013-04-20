@@ -1,5 +1,5 @@
 
-(** {1 Properties Management} *)
+(** Properties Management *)
 
 type 'a key
 val register : unit -> 'a key

@@ -24,26 +24,39 @@ object(self)
   val mutable lock = false
   val mutable demon = []
   inherit ['a] handler
-  method fire (x:'a) =
+  method remove f = demon <- List.filter (fun g -> g != f) demon
+  method fire (x:'a) : unit =
     if enabled && not lock then 
       try lock <- true ; apply demon x ; lock <- false
       with err -> lock <- false ; raise err
-  method send x () = self#fire x
+  method emit x () = self#fire x
   method connect f = demon <- demon @ [f]
   method set_enabled e = enabled <- e
+  method transmit_to : 'b. ((<fire : 'a action ; ..> as 'b) -> unit) =
+    fun receiver -> self#connect receiver#fire
 end
 
 class ['a] selector default =
-object
+object(self)
   val mutable current : 'a = default
   inherit ['a] signal as s
   method get = current
   method set x = current <- x ; s#fire x
   method! fire x = current <- x ; s#fire x
-    (** Same as [set]. *)
-  method! send x () = current <- x ; s#fire x
-    (** Delayed [set]. *)
+  method! emit x () = current <- x ; s#fire x
   method send_to receiver () : unit = receiver current
-    (** The action transmit the current value to receiver.
-	When the selector value changes, so is the action. *)
+  method mirror_to : 'b. ((<fire : 'a action ; ..> as 'b) -> unit) =
+    fun receiver -> self#connect receiver#fire ; receiver#fire current
 end
+
+let mirror_signals (a : 'a #signal) (b : 'a #signal) =
+  begin
+    a#transmit_to b ; 
+    b#transmit_to a ;
+  end
+
+let mirror_values ~(master : 'a #selector) ~(client : 'a #selector) =
+  begin
+    client#transmit_to master ;
+    master#mirror_to client ;
+  end

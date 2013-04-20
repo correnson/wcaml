@@ -1,37 +1,52 @@
 
-(** {1 Signals and Handlers} *)
+(** Signals and Handlers *)
 
-type 'a action = 'a -> unit
-type 'a callback = 'a action -> unit
+type 'a action = 'a -> unit (** Actioner *)
+type 'a callback = 'a action -> unit (** Handler *)
 
-(** {1 Iterators} *)
+val apply  : 'a action list -> 'a action   (** Send value to all actions *)
+val option : 'a action -> 'a option action (** Option.map *)
+val list   : 'a action -> 'a list action   (** List.map *)
+val array  : 'a action -> 'a array action  (** Array.map *)
 
-val apply  : 'a action list -> 'a action
-val option : 'a action -> 'a option action
-val list   : 'a action -> 'a list action
-val array  : 'a action -> 'a array action
-
+(** Signal Handler *)
 class virtual ['a] handler :
 object
   method virtual connect : 'a callback
-  method on_event : unit callback
-  method on_check : 'a -> bool callback
-  method on_value : 'a -> unit callback
-end    
+  method on_event : unit callback        (** Called on each signal *)
+  method on_check : 'a -> bool callback  (** Compare each signal to the value *)
+  method on_value : 'a -> unit callback  (** Called only when the value is signaled *)
+end
 
+(** Generic Signal *)
 class ['a] signal :
 object
   inherit ['a] handler
   method connect : 'a callback
+  method remove : 'a callback (** Use physical equality [==] *)
   method set_enabled : bool action
   method fire : 'a action
-  method send : 'a -> unit action
+  method emit : 'a -> unit action (** An action that sends the value *)
+  method transmit_to : 
+    'b. ((<fire : 'a action ; ..> as 'b) -> unit)
+    (** Transmit changes to signal *)
 end
 
+(** Generic Selector *)
 class ['a] selector : 'a ->
 object
   inherit ['a] signal
-  method set : 'a action
+  method set : 'a -> unit
   method get : 'a
-  method send_to : 'a action -> unit action
+  method send_to : 'a action -> unit action 
+    (** Action that transmits the current value on demand. *)
+  method mirror_to : 
+    'b. ((<fire : 'a action ; ..> as 'b) -> unit)
+    (** Transmit the current value and connect changes to signal. *)
 end
+
+val mirror_values : master:'a #selector -> client:'a #selector -> unit
+  (** Bi-directional connection. The initial value is taken from [master] *)
+
+val mirror_signals : 'a #signal -> 'a #signal -> unit
+  (** Bi-directional connection *)
