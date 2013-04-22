@@ -6,7 +6,7 @@
 
 all: opt wcaml
 rebuild:
-	$(MAKE) depend
+	$(MAKE) clean depend
 	$(MAKE) all
 
 # --------------------------------------------------------------------------
