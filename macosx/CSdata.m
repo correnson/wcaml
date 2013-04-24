@@ -21,7 +21,7 @@ value wcaml_value_of_nsstring(NSString *theText)
 
 NSString* wcaml_nsstring_of_value(value v_str)
 {
-  return [[NSString alloc] initWithUTF8String:String_val(v_str)];
+  return [[[NSString alloc] initWithUTF8String:String_val(v_str)] autorelease];
 }
 
 // --------------------------------------------------------------------------
@@ -30,7 +30,8 @@ NSString* wcaml_nsstring_of_value(value v_str)
 
 value wcaml_nsarray_init(value vcapacity)
 {
-  return (value) [NSMutableArray arrayWithCapacity:Int_val(vcapacity)];
+  NSArray * array = [NSMutableArray arrayWithCapacity:Int_val(vcapacity)];
+  return (value) [array autorelease];
 }
 
 value wcaml_nsarray_count(value varray)
