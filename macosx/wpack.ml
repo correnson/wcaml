@@ -28,6 +28,19 @@ let configure () =
 (* --- Info.plist                                                         --- *)
 (* -------------------------------------------------------------------------- *)
 
+let rec reverse url p = 
+  try
+    let k = String.index_from url p '.' in
+    if p < k then
+      let w = String.sub url p (k-p) in
+      let r = reverse url (succ k) in
+      r ^ "." ^ w
+    else
+      reverse url (succ k)
+  with Not_found -> 
+    String.sub url p (String.length url - p)
+
+
 let infop_key out key value = 
   Printf.fprintf out "  <key>%s</key><string>%s</string>\n" key value
 
@@ -35,6 +48,7 @@ let infop_file () =
   let file = Printf.sprintf "%s/Contents/Info.plist" !bundle in
   Format.eprintf "[WCaml] %s@." file ;
   let out = open_out file in
+  let url = reverse !domain 0 ^ "." ^ !app in
   begin
     output_string out "<plist version=\"1.0\">\n<dict>\n" ;
     infop_key out "CFBundleDevelopmentRegion" "English" ;
@@ -43,7 +57,7 @@ let infop_file () =
     infop_key out "CFBundleSignature" "????" ;
     infop_key out "CFBundleName" !name ;
     infop_key out "CFBundleVersion" !version ;
-    infop_key out "CFBundleIdentifier" (Printf.sprintf "%s.%s" !app !domain) ;
+    infop_key out "CFBundleIdentifier" url ;
     infop_key out "CFBundleShortVersionString" !version ;
     infop_key out "CFBundleExecutable" !app ;
     infop_key out "CFBundleIconFile" "" ;
