@@ -8,7 +8,7 @@
 // --- CSDelegate Implementation
 // --------------------------------------------------------------------------
 
-@implementation CSDelegate
+@implementation CSAppDelegate
 
 -(id) init 
 {
@@ -90,30 +90,6 @@
   [item setTarget:NSApp];
   //-----------------------------------------
 }
-@end
-
-// --------------------------------------------------------------------------
-// --- CSApplication Implementation
-// --------------------------------------------------------------------------
-
-@implementation CSApplication
-
--(id) init {
-
-  if ((self = [super init]))
-    [self setDelegate:[[CSDelegate alloc] init]];
-  return self;
-}
-
--(void) dealloc {
-  id delegate = [self delegate];
-  if (delegate) {
-    [self setDelegate:nil];
-    [delegate release];
-  }
-  [super dealloc];
-}
-
 @end
 
 // --------------------------------------------------------------------------

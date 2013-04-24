@@ -10,7 +10,9 @@ static NSAutoreleasePool * wcaml_pool = nil ;
 value wcaml_init(value unit)
 {
   wcaml_pool = [[NSAutoreleasePool alloc] init];
-  [CSApplication sharedApplication];
+  [NSApplication sharedApplication];
+  CSAppDelegate * delegate = [[CSAppDelegate alloc] init];
+  [NSApp setDelegate:delegate];
   [NSApp finishLaunching];
   return Val_unit ;
 }
@@ -27,3 +29,5 @@ value wcaml_quit(value unit)
   [NSApp terminate:nil];
   return Val_unit ;
 }
+
+// ---------------------------------------------------------------------------

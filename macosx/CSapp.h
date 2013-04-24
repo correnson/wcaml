@@ -4,13 +4,9 @@
 
 #import "CS.h"
 
-@interface CSDelegate : NSObject
+@interface CSAppDelegate : NSObject
 { NSString * theAppName ; }
 -(NSString *) appName;
 -(void) makeAppMenu:(NSMenu*)menu;
-@end
-
-@interface CSApplication : NSApplication 
-{ }
 @end
 
