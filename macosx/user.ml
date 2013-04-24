@@ -90,7 +90,7 @@ object(self)
 
   initializer
     begin
-      Main.on_main#connect self#load ;
+      Main.on_main self#load ;
       self#on_event self#save ;
     end
 

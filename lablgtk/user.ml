@@ -38,8 +38,8 @@ let save () =
     (fun f -> IDS.iter f !prefs)
     (home ())
 
-let () = Main.on_init#connect load
-let () = Main.on_quit#connect save
+let () = Main.on_init load
+let () = Main.on_quit save
 
 let rec emap f = function
   | [] -> []

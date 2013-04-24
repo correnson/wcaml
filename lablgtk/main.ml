@@ -1,11 +1,14 @@
 
 open Event
 
-let on_init = new Event.signal
-let on_main = new Event.signal
-let on_quit = new Event.signal
+let sig_init = new Event.signal
+let sig_main = new Event.signal
+let sig_quit = new Event.signal
 
-let init () = ignore (GMain.init ()) ; on_init#fire ()
-let main () = on_main#fire () ; GMain.main ()
-let quit () = on_quit#fire () ; GMain.quit ()
+let on_init = sig_init#connect
+let on_main = sig_main#connect
+let on_quit = sig_quit#connect
 
+let init () = ignore (GMain.init ()) ; sig_init#fire ()
+let main () = GMain.main () ; sig_main#fire ()
+let quit () = sig_quit#fire () ; GMain.quit ()
