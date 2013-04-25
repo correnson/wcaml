@@ -41,3 +41,11 @@ sig
   val to_array : 'a t -> 'a array
 end
 
+(** {2 Views} *)
+
+module NSView :
+sig
+  type t
+  val key : t Property.key
+  val coerce : #Widget.widget -> t
+end

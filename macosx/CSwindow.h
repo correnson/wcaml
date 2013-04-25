@@ -22,6 +22,9 @@ value wcaml_nswindow_set_title(value vwindow,value vtitle);
 value wcaml_nswindow_set_edited(value vwindow,value vedited);
 // NSWindow -> BOOL -> unit
 
+value wcaml_nswindow_set_content(value vwindow,value vwidget);
+// NSWindow -> NSView -> unit
+
 value wcaml_nswindow_show(value vwindow);
 // NSWindow -> unit
 

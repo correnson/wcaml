@@ -11,6 +11,7 @@ struct
   type t
   external cascading : unit -> unit = "wcaml_nswindow_cascading"
   external create : NSString.t -> t = "wcaml_nswindow_create"
+  external set_content : t -> NSView.t -> unit = "wcaml_nswindow_set_content"
   external set_title : t -> NSString.t -> unit = "wcaml_nswindow_set_title"
   external set_edited : t -> bool -> unit = "wcaml_nswindow_set_edited"
   external request_focus : t -> unit = "wcaml_nswindow_request_focus"
@@ -72,7 +73,7 @@ object(self)
 
   (*--- Content & Closing ---*)
   method on_close = close#connect
-  method set_content : widget -> unit = fun _ -> ()
+  method set_content widget = NSWindow.set_content window (NSView.coerce widget)
   initializer Event.option self#set_content content
   initializer Close.register window close#fire
 

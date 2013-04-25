@@ -79,3 +79,14 @@ struct
     Array.init (count w) (get w)
 
 end
+
+(* -------------------------------------------------------------------------- *)
+(* --- NSView                                                             --- *)
+(* -------------------------------------------------------------------------- *)
+
+module NSView =
+struct
+  type t
+  let key : t Property.key = Property.register ()
+  let coerce (w : #Widget.widget) = w#get_prop key
+end
