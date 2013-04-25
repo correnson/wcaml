@@ -5,7 +5,7 @@ open Event
 
 class toplevel : id:string -> ?title:string -> ?content:widget -> unit ->
 object
-  inherit Widget.widget
+  inherit Property.bundle
   inherit Widget.focus
   inherit Widget.visible
   method on_close : unit callback

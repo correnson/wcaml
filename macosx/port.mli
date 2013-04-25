@@ -5,15 +5,15 @@
 module type ServiceId =
 sig
   val name : string
-  type link
+  type nsobject
   type signature
   val default : signature
 end
 
 module Service( S : ServiceId ) :
 sig
-  val register : S.link -> S.signature -> unit
-  val remove : S.link -> unit
+  val register : S.nsobject -> S.signature -> unit
+  val remove : S.nsobject -> unit
 end
 
 (** {2 Data and Collections}

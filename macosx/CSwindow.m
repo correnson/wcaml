@@ -14,16 +14,59 @@ value wcaml_nswindow_cascading(value unit)
 }
 
 // ---------------------------------------------------------------------------
-// --- Window creation
+// --- Callbacks
+// ---------------------------------------------------------------------------
+
+void wcaml_callback_nswindow_focus(NSWindow * window,BOOL focus)
+{
+  static value * service = NULL ;
+  if (!service) service = caml_named_value("nswindow_focus");
+  if (service) caml_callback2( *service , (value) window , VBOOL(focus) );
+  return;
+}
+
+void wcaml_callback_nswindow_close(NSWindow * window)
+{
+  static value * service = NULL ;
+  if (!service) service = caml_named_value("nswindow_close");
+  if (service) caml_callback2( *service , (value) window , Val_unit );
+  return;
+}
+
+// ---------------------------------------------------------------------------
+// --- Delegate
+// ---------------------------------------------------------------------------
+
+@implementation CSWinDelegate
+
+- (void)windowDidBecomeMain:(NSNotification *)notification
+{
+  wcaml_callback_nswindow_focus( [notification object] , YES );
+}
+
+- (void)windowDidResignMain:(NSNotification *)notification
+{
+  wcaml_callback_nswindow_focus( [notification object] , NO );
+}
+
+- (BOOL)windowShouldClose:(id)sender
+{
+  wcaml_callback_nswindow_close( (NSWindow*) sender );
+  return NO; // To break the normal close operation.
+}
+
+@end
+
+// ---------------------------------------------------------------------------
+// --- NSWindow
 // ---------------------------------------------------------------------------
 
 value wcaml_nswindow_create(value vkey)
 {
-  //static CSWindowDelegate * delegate = nil ;
-  NSRect frame = NSMakeRect(0,0,200,100);
+  //---- Window -----------------------
   NSWindow * wref = 
     [[NSWindow alloc] 
-      initWithContentRect:frame
+      initWithContentRect:NSMakeRect(0,0,200,100)
 		styleMask:(NSTitledWindowMask|
 			   NSClosableWindowMask|
 			   NSMiniaturizableWindowMask|
@@ -31,8 +74,11 @@ value wcaml_nswindow_create(value vkey)
 		  backing:NSBackingStoreBuffered
 		    defer:YES
      ] ;
-  //if (!delegate) delegate = [[CSWindowDelegate alloc] init] ;
-  //[wref setDelegate:delegate] ;
+  //---- Delegate --------------------
+  static CSWinDelegate * delegate = nil ;
+  if (!delegate) delegate = [[CSWinDelegate alloc] init] ;
+  [wref setDelegate:delegate] ;
+  //---- Positionning ----------------
   NSWindowController * controller = [wref windowController] ;
   [controller setShouldCascadeWindows:NO];
   NSString * key = ID(NSString,vkey);
@@ -40,24 +86,45 @@ value wcaml_nswindow_create(value vkey)
   if (!framed)
     cascading = [wref cascadeTopLeftFromPoint:cascading];
   [wref setFrameAutosaveName:key];
+  //---- Configuring -----------------
+  [wref setReleasedWhenClosed:NO];
   [wref makeKeyAndOrderFront:nil];
   return (value) wref ;
 }
 
 // ---------------------------------------------------------------------------
-// --- Window decoration
+// --- Decorations
 // ---------------------------------------------------------------------------
 
-value wcaml_nswindow_set_title(value vwin,value vtitle)
+value wcaml_nswindow_set_title(value vwindow,value vtitle)
 {
-  [ID(NSWindow,vwin) setTitle:ID(NSString,vtitle)];
+  [ID(NSWindow,vwindow) setTitle:ID(NSString,vtitle)];
   return Val_unit;
 }
 
-value wcaml_nswindow_set_edited(value vwin,value vedited)
+value wcaml_nswindow_set_edited(value vwindow,value vedited)
 {
-  [ID(NSWindow,vwin) setDocumentEdited:BOOL(vedited)];
+  [ID(NSWindow,vwindow) setDocumentEdited:BOOL(vedited)];
   return Val_unit;
+}
+
+// ---------------------------------------------------------------------------
+// --- Visibility
+// ---------------------------------------------------------------------------
+
+value wcaml_nswindow_request_focus(value vwindow)
+{
+  [ID(NSWindow,vwindow) makeKeyAndOrderFront:nil];
+}
+
+value wcaml_nswindow_show(value vwindow)
+{
+  [ID(NSWindow,vwindow) orderFront:nil];
+}
+
+value wcaml_nswindow_hide(value vwindow)
+{
+  [ID(NSWindow,vwindow) orderOut:nil];
 }
 
 // ---------------------------------------------------------------------------

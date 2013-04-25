@@ -15,29 +15,25 @@ let check id =
 module type ServiceId =
 sig
   val name : string
-  type link
+  type nsobject
   type signature
   val default : signature
 end
 
 module Service(S : ServiceId) =
 struct
-  
-  let registry : (S.link,S.signature) Hashtbl.t = Hashtbl.create 131
-    
+  open S
+  let registry : (nsobject,signature) Hashtbl.t = Hashtbl.create 131
   let callback lnk =
     try Hashtbl.find registry lnk
     with Not_found -> S.default
-  
   let register = Hashtbl.replace registry
   let remove = Hashtbl.remove registry
-      
   let () =
     begin
-      check S.name ;
-      Callback.register ("wcaml:" ^ S.name) callback
+      check name ;
+      Callback.register name callback
     end
-
 end
 
 (* -------------------------------------------------------------------------- *)

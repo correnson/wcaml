@@ -18,8 +18,6 @@ end
 
 class type visible =
 object
-  method visible : bool signal
-  method on_visible : bool callback
   method set_visible : bool action
   method show : unit action
   method hide : unit action

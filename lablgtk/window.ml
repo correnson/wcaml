@@ -14,7 +14,7 @@ class toplevel ~id ?(title="") ?content () =
   let focus = new Event.signal in
   let size = User.int_list ~id ~default:[] in
 object(self)
-  inherit Port.widget win
+  inherit Property.bundle
 
   (*--- FRAME ---*)
   initializer
@@ -54,8 +54,6 @@ object(self)
     end
 
   (*--- VISIBLE ---*)
-  method visible = focus
-  method on_visible = focus#connect
   method set_visible e = if e then win#show () else win#misc#hide ()
   method show = win#show
   method hide = win#misc#hide
