@@ -11,7 +11,7 @@ rebuild:
 
 # --------------------------------------------------------------------------
 
-wcaml: wpack.ml
+wcamlpack: wpack.ml
 	$(OCAMLOPT) -o $@ $<
 
 # --------------------------------------------------------------------------
@@ -47,7 +47,7 @@ clean::
 install:
 	@echo "Install WCaml."
 	@ocamlfind remove wcaml
-	@ocamlfind install wcaml META wcaml wcaml.cmi wcaml.cmxa wcaml.a
+	@ocamlfind install wcaml META wcamlpack wcaml.cmi wcaml.cmxa wcaml.a
 
 uninstall:
 	@echo "Removing WCaml."

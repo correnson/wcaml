@@ -34,7 +34,6 @@ struct
   let get_list bundle k = get_prop bundle ~default:[] k
   let add_list bundle k e = set_prop bundle k (e :: get_list bundle k)
   let append_list bundle k e = set_prop bundle k (get_list bundle k @ [e])
-
 end
 
 class bundle =
