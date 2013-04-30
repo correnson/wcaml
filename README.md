@@ -1,4 +1,4 @@
 Wcaml
 =====
 
-A user graphical interface toolkit for OCaml.
+A graphical user interface toolkit for OCaml.
