@@ -47,8 +47,8 @@ and text buffer = parse
   let rec parse_prop f lex =
     match token lex with
       | EOF -> ()
-      | ID a -> parse_entry f lex a []
-      | _ -> parse_prop f lex
+      | ID a | TEXT a -> parse_entry f lex a []
+      | BLOB | SEP | DEF | END -> parse_prop f lex
 
   and parse_entry f lex a xs =
     match token lex with

@@ -4,7 +4,7 @@
 
 .PHONY: all opt rebuild
 
-all: opt wcaml
+all: opt wcamlpack
 rebuild:
 	$(MAKE) clean depend
 	$(MAKE) all
@@ -44,10 +44,12 @@ clean::
 
 # --------------------------------------------------------------------------
 
+DISTRIB= wcamlpack wcaml.cmi wcaml.cmxa wcaml.a
+
 install:
 	@echo "Install WCaml."
 	@ocamlfind remove wcaml
-	@ocamlfind install wcaml META wcamlpack wcaml.cmi wcaml.cmxa wcaml.a
+	@ocamlfind install wcaml META $(DISTRIB)
 
 uninstall:
 	@echo "Removing WCaml."

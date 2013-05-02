@@ -9,3 +9,5 @@ val quit : unit -> unit (** Quits the main event loop. *)
 val on_init : unit callback
 val on_main : unit callback
 val on_quit : unit callback
+
+val later : unit callback (** Runs the job during idle time. *)

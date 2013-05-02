@@ -5,71 +5,37 @@
 #import "CSapp.h"
 
 // --------------------------------------------------------------------------
-// --- CSDelegate Implementation
+// --- Predefined Application Menu
 // --------------------------------------------------------------------------
 
-@implementation CSAppDelegate
-
--(id) init 
+static void wcaml_application_menu(NSMenu * menu)
 {
-  if ((self = [super init])) {
-    theAppName = [[[NSBundle mainBundle] 
-		    objectForInfoDictionaryKey:@"CFBundleName"] retain];
-    if (!theAppName)
-      theAppName = @"WCaml" ;
-  }
-  return self;
-}
-
--(void) dealloc 
-{
-  [theAppName release];
-  theAppName = nil;
-  [super dealloc];
-}
-
--(NSString *) appName {
-  return [[theAppName retain] autorelease];
-}
-
--(void) applicationWillFinishLaunching:(NSNotification *)aNotification 
-{
-  NSMenu * menubar ;
-  NSMenuItem * item ;
-  NSMenu * submenu ;
-  //---- Menu Bar -----
-  menubar = [[[NSMenu alloc] initWithTitle:@"MainMenu"] autorelease];
-  //---- Application Menu -----
-  item = [menubar addItemWithTitle:@"Apple" action:NULL keyEquivalent:@""];
-  submenu = [[[NSMenu alloc] initWithTitle:@"Apple"] autorelease];
-  [NSApp performSelector:@selector(setAppleMenu:) withObject:submenu];
-  [menubar setSubmenu:submenu forItem:item];
-  [self makeAppMenu:submenu];
-  //---- That's It ----------
-  [NSApp setMainMenu:menubar];
-}
-
--(void) makeAppMenu:(NSMenu *)menu
-{
+  NSString * name ;
   NSMenuItem * item ;
   NSString * title ;
+  //---- Application Name -----
+  name = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
+
   //--- About ---------------
-  [[menu addItemWithTitle:[NSString stringWithFormat:@"About %@" , theAppName]
+  [[menu addItemWithTitle:[NSString stringWithFormat:@"About %@" , name]
 		   action:@selector(orderFrontStandardAboutPanel:)
 	    keyEquivalent:@""] setTarget:NSApp];
+
   //--- Preferences ---------------
   [menu addItem:[NSMenuItem separatorItem]];
   title = [NSString stringWithFormat:@"Preferences%C", (unichar)0x2026];
   [menu addItemWithTitle:title action:NULL keyEquivalent:@","];
+
   //--- Services ------------------
   [menu addItem:[NSMenuItem separatorItem]];
   item = [menu addItemWithTitle:@"Services" action:NULL keyEquivalent:@""];
   NSMenu * servicesMenu = [[[NSMenu alloc] initWithTitle:@"Services"] autorelease];
   [menu setSubmenu:servicesMenu forItem:item];
   [NSApp setServicesMenu:servicesMenu];
+
   //--- Hide, Hide Others, Show All ---------
   [menu addItem:[NSMenuItem separatorItem]];
-  [[menu addItemWithTitle:[NSString stringWithFormat:@"Hide %@", theAppName]
+  [[menu addItemWithTitle:[NSString stringWithFormat:@"Hide %@", name]
 		   action:@selector(hide:) keyEquivalent:@"h"] 
     setTarget:NSApp];
   
@@ -83,13 +49,65 @@
 			 action:@selector(unhideAllApplications:)
 		  keyEquivalent:@""];
   [item setTarget:NSApp];
+
   //--- Quit --------------------------------
   [menu addItem:[NSMenuItem separatorItem]];
-  item = [menu addItemWithTitle:[NSString stringWithFormat:@"Quit %@" , theAppName]
+  item = [menu addItemWithTitle:[NSString stringWithFormat:@"Quit %@" , name]
 			 action:@selector(terminate:) keyEquivalent:@"q"];
   [item setTarget:NSApp];
-  //-----------------------------------------
 }
+
+// --------------------------------------------------------------------------
+// --- Predefined Window Menu
+// --------------------------------------------------------------------------
+
+static void wcaml_window_menu(NSMenu * menu)
+{
+  [menu addItemWithTitle:NSLocalizedString(@"Minimize", nil)
+		  action:@selector(performMiniaturize:)
+	   keyEquivalent:@"m"];
+  [menu addItemWithTitle:NSLocalizedString(@"Zoom", nil)
+		  action:@selector(performZoom:)
+	   keyEquivalent:@""];
+  [menu addItem:[NSMenuItem separatorItem]];
+  [menu addItemWithTitle:NSLocalizedString(@"Bring All to Front", nil)
+		  action:@selector(arrangeInFront:)
+	   keyEquivalent:@""];
+}
+
+// --------------------------------------------------------------------------
+// --- CSDelegate Implementation
+// --------------------------------------------------------------------------
+
+@implementation CSAppDelegate
+
+-(void) applicationWillFinishLaunching:(NSNotification *)aNotification 
+{
+  NSMenu * menubar ;
+  NSMenuItem * item ;
+  NSMenu * menu ;
+  
+  //---- Menu Bar -------------
+  menubar = [[[NSMenu alloc] initWithTitle:@"MainMenu"] autorelease];
+
+  //---- Application Menu -----
+  item = [menubar addItemWithTitle:@"Apple" action:NULL keyEquivalent:@""];
+  menu = [[[NSMenu alloc] initWithTitle:@"Apple"] autorelease];
+  [NSApp performSelector:@selector(setAppleMenu:) withObject:menu];
+  [menubar setSubmenu:menu forItem:item];
+  wcaml_application_menu(menu);
+  
+  //---- Window Menu ----------
+  item = [menubar addItemWithTitle:@"Window" action:NULL keyEquivalent:@""];
+  menu = [[[NSMenu alloc] initWithTitle:@"Window"] autorelease];
+  [menubar setSubmenu:menu forItem:item];
+  [NSApp setWindowsMenu:menu];
+  wcaml_window_menu(menu);
+
+  //---- That's It ------------
+  [NSApp setMainMenu:menubar];
+}
+
 @end
 
 // --------------------------------------------------------------------------

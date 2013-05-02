@@ -4,9 +4,6 @@
 
 #import "CS.h"
 
-@interface CSAppDelegate : NSObject
-{ NSString * theAppName ; }
--(NSString *) appName;
--(void) makeAppMenu:(NSMenu*)menu;
+@interface CSAppDelegate : NSObject { }
+-(void) applicationWillFinishLaunching:(NSNotification *)aNotification;
 @end
-

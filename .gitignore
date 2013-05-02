@@ -8,3 +8,5 @@
 *.cmxs
 *.cmxa
 macosx/beurk
+macosx/wcamlpack
+lablgtk/wcamlpack

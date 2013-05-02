@@ -1,9 +1,22 @@
 open Widget
 open Event
 
-(** Toplevel window *)
+(** Application Windows *)
 
-class toplevel : id:string -> ?title:string -> ?content:widget -> unit ->
+(** Toplevel window.
+    @param id Identifier of the window (unique)
+    @param title Displayed title (default [""])
+    @param content Window content (default empty)
+    @param show Initial visibility (default [true])
+    @param focus Request focus for the window (default [false], 
+                 except for the first one).
+*)
+class toplevel : 
+  id:string -> 
+  ?title:string ->      
+  ?content:widget ->    
+  ?show:bool ->         
+  ?focus:bool -> unit -> 
 object
   inherit Property.bundle
   inherit Widget.focus

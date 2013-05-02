@@ -74,6 +74,7 @@ value wcaml_nswindow_create(value vkey)
 		  backing:NSBackingStoreBuffered
 		    defer:YES
      ] ;
+  [wref setReleasedWhenClosed:NO];
   //---- Delegate --------------------
   static CSWinDelegate * delegate = nil ;
   if (!delegate) delegate = [[CSWinDelegate alloc] init] ;
@@ -86,9 +87,6 @@ value wcaml_nswindow_create(value vkey)
   if (!framed)
     cascading = [wref cascadeTopLeftFromPoint:cascading];
   [wref setFrameAutosaveName:key];
-  //---- Configuring -----------------
-  [wref setReleasedWhenClosed:NO];
-  [wref makeKeyAndOrderFront:nil];
   return (value) wref ;
 }
 

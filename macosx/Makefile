@@ -4,14 +4,14 @@
 
 .PHONY: all opt rebuild
 
-all: opt wcaml
+all: opt wcamlpack
 rebuild:
 	$(MAKE) clean depend
 	$(MAKE) all
 
 # --------------------------------------------------------------------------
 
-wcaml: wpack.ml
+wcamlpack: wpack.ml
 	$(OCAMLOPT) -o $@ $<
 
 # --------------------------------------------------------------------------
@@ -48,9 +48,11 @@ depend: .port
 
 # --------------------------------------------------------------------------
 
+DISTRIB= wcamlpack wcaml.cmi wcaml.cmxa wcaml.a libwcaml.a
+
 install:
 	@ocamlfind remove wcaml
-	@ocamlfind install wcaml META wcaml wcaml.cmi wcaml.cmxa wcaml.a libwcaml.a
+	@ocamlfind install wcaml META $(DISTRIB)
 
 uninstall:
 	@ocamlfind remove wcaml

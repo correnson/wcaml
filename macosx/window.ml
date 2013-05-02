@@ -17,7 +17,6 @@ struct
   external request_focus : t -> unit = "wcaml_nswindow_request_focus"
   external show : t -> unit = "wcaml_nswindow_show"
   external hide : t -> unit = "wcaml_nswindow_hide"
-  external back : t -> unit = "wcaml_nswindow_back"
   let () = Main.on_init cascading
 end
 
@@ -45,7 +44,10 @@ module Close = Service
 (* --- Window Packing                                                     --- *)
 (* -------------------------------------------------------------------------- *)
 
-class toplevel ~id ?title ?(content:widget option) () =
+let main = ref true
+
+class toplevel ~id ?title ?(content:widget option) ?(show=true) ?(focus=false) () =
+  let request = focus in
   let window = NSWindow.create (NSString.of_string id) in
   let close : unit signal = new Event.signal in
   let focus : bool signal = new Event.signal in
@@ -76,5 +78,17 @@ object(self)
   method set_content widget = NSWindow.set_content window (NSView.coerce widget)
   initializer Event.option self#set_content content
   initializer Close.register window close#fire
+
+  (*--- Initial ---*)
+  initializer
+    begin
+      if show then
+	if (!main || request) then 
+	  begin
+	    main := false ;
+	    NSWindow.request_focus window ;
+	  end
+	else NSWindow.show window
+    end
 
 end
