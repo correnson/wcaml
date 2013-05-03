@@ -1,3 +1,6 @@
+.port
+.depend
+*~
 *.annot
 *.cmo
 *.cma
