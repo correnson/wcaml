@@ -7,6 +7,7 @@
 *.cmx
 *.cmxs
 *.cmxa
-macosx/beurk
-macosx/wcamlpack
-lablgtk/wcamlpack
+.depend
+.install
+.port
+
