@@ -65,7 +65,6 @@ object(self)
       let callback e _ev = focus#fire e ; false in
       ignore (connect#focus_in ~callback:(callback true));
       ignore (connect#focus_out ~callback:(callback false));
-      focus#connect (fun e -> Format.printf "[%s] focus %b@." id e) ;
       if show then
 	if !running then
 	  win#present ()
