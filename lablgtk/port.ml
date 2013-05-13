@@ -11,5 +11,5 @@ object(self)
   inherit Property.bundle
   method coerce = (self :> Widget.widget)
   method set_enabled = w#misc#set_sensitive
+  initializer self#set_prop widget (w :> GObj.widget)
 end
-
