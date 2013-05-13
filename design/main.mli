@@ -1,4 +1,4 @@
-(** {1 Main Entry Points} *)
+(** Main Entry Points *)
 
 open Event
 
