@@ -42,7 +42,7 @@ object(self)
 
   method private load () =
     let obj = get_user_nsstring (NSString.of_string id) in
-    if obj != NSString.nil then
+    if obj != Port.nil then
       try self#set (decode (NSString.to_string obj))
       with Invalid_argument _ -> ()
 

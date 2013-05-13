@@ -24,8 +24,7 @@ include ../design/MakePort
 OPTML= -w PSUZMV -warn-error PSUZMV
 OPTCMX= -for-pack Wcaml
 
-WCAML_SRC= main port user window
-
+WCAML_SRC= main port user window control
 
 WCAML_TYPES= widget.cmi
 WCAML_CMI=$(addsuffix .cmi, $(WCAML_LIB) $(WCAML_SRC))
@@ -33,7 +32,7 @@ WCAML_CMX=$(addsuffix .cmx, $(WCAML_LIB) $(WCAML_SRC))
 
 # --------------------------------------------------------------------------
 
-OBJC= CSapp.o CSmain.o CSdata.o CSuser.o CSwindow.o
+OBJC= CSapp.o CSmain.o CSdata.o CSuser.o CSwindow.o CScell.o CSview.o
 
 # --------------------------------------------------------------------------
 
@@ -64,6 +63,8 @@ include ../design/MakeOcaml
 CSmain.m: CSapp.h
 CSuser.m: CSdata.h
 CSwindow.m:
+CScell.m:
+CSview.m:
 
 .m.h: CS.h
 .m.o:

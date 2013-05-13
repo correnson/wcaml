@@ -36,6 +36,8 @@ struct
     end
 end
 
+let nil : 'a = Obj.magic 0
+
 (* -------------------------------------------------------------------------- *)
 (* --- Data                                                               --- *)
 (* -------------------------------------------------------------------------- *)
@@ -43,7 +45,6 @@ end
 module NSString =
 struct
   type t
-  let nil : t = Obj.magic 0
   external of_string : string -> t = "wcaml_nsstring_of_value"
   external to_string : t -> string = "wcaml_value_of_nsstring"
 end
@@ -87,6 +88,18 @@ end
 module NSView =
 struct
   type t
+  external set_tooltip : t -> NSString.t -> unit = "wcaml_nsview_set_tooltip"
   let key : t Property.key = Property.register ()
-  let coerce (w : #Widget.widget) = w#get_prop key
+  let coerce (w : #Property.bundle) = w#get_prop key
+  class bundle (w : t) =
+  object(self)
+    inherit Property.bundle
+    initializer self#set_prop key w
+  end
+end
+
+module NSCell =
+struct
+  type t
+  external set_enabled : t -> bool -> unit = "wcaml_nscell_set_enabled"
 end

@@ -19,10 +19,11 @@ end
 (** {2 Data and Collections}
     All Objects are allocated in the autorelease pool. *)
 
+val nil : 'a (** Cocoa object [nil] *)
+
 module NSString :
 sig
   type t
-  val nil : t
   external of_string : string -> t = "wcaml_nsstring_of_value"
   external to_string : t -> string = "wcaml_value_of_nsstring"
 end
@@ -47,5 +48,16 @@ module NSView :
 sig
   type t
   val key : t Property.key
-  val coerce : #Widget.widget -> t
+  val coerce : #Property.bundle -> t
+  external set_tooltip : t -> NSString.t -> unit = "wcaml_nsview_set_tooltip"
+  class bundle : t -> 
+  object
+    inherit Property.bundle
+  end
+end
+
+module NSCell :
+sig
+  type t
+  external set_enabled : t -> bool -> unit = "wcaml_nscell_set_enabled"
 end
