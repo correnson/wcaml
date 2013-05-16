@@ -82,3 +82,42 @@ object(self)
       ignore (w#connect#toggled ~callback:self#updated) ;
     end
 end
+
+(* -------------------------------------------------------------------------- *)
+(* ---  Radios                                                            --- *)
+(* -------------------------------------------------------------------------- *)
+
+let groups : (int,Gtk.radio_button Gtk.group) Hashtbl.t = Hashtbl.create 63
+let set_group (r : GButton.radio_button) (s : _ selector) (update : unit -> unit) =
+  let id = Oo.id s in
+  s#on_event update ;
+  begin
+    try r#set_group (Hashtbl.find groups id)
+    with Not_found -> Hashtbl.add groups id r#group
+  end ; update ()
+
+class ['a] radio ?label ?tooltip ?group ?value () =
+  let w = GButton.radio_button ?label () in
+object(self)
+  val mutable option : 'a option = value
+  val mutable select : 'a selector option = None
+  inherit Port.control ?tooltip w as control
+  method set_label = w#set_label
+  method set_group g = select <- Some g ; set_group w g self#update
+  method set_value v = option <- Some v ; self#update ()
+  method private update () =
+    match select , option with
+      | Some g , Some v when v = g#get -> w#set_active true
+      | _ -> w#set_active false
+  method private clicked () =
+    match select , option with
+      | Some g , Some v -> g#set v
+      | _ -> ()
+  initializer
+    begin
+      w#misc#set_can_focus false ;
+      w#set_focus_on_click false ;
+      Event.option self#set_group group ;
+      ignore (w#connect#toggled ~callback:self#clicked) ;
+    end
+end
