@@ -32,10 +32,3 @@ object
   inherit widget
   method set_tooltip : string -> unit
 end
-
-(** Widget for basic type selection *)
-class type ['a] editor =
-object
-  inherit control
-  inherit ['a] Event.selector
-end
