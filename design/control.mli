@@ -28,3 +28,10 @@ object
   inherit [unit] Event.signal
   method set_label : string -> unit
 end
+
+class checkbox : ?label:string -> ?tooltip:string -> ?value:bool -> unit ->
+object
+  inherit Widget.control
+  inherit [bool] Event.selector
+  method set_label : string -> unit
+end

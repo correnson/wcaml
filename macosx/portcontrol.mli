@@ -16,6 +16,8 @@ sig
   type t
   external set_enabled : t -> bool -> unit = "wcaml_nscell_set_enabled"
   external set_title : t -> NSString.t -> unit = "wcaml_nscell_set_title"
+  external set_state : t -> bool -> unit = "wcaml_nscell_set_state"
+  external get_state : t -> bool = "wcaml_nscell_get_state"
 end
 
 module NSControl :
@@ -34,5 +36,5 @@ sig
   val as_control : t -> NSControl.t
   val as_view : t -> NSView.t
   val as_cell : t -> NSCell.t
-  external create : unit -> t = "wcaml_nsbutton_create"
+  external create : int -> t = "wcaml_nsbutton_create"
 end

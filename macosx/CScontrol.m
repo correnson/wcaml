@@ -26,7 +26,7 @@ CSSignal* wcaml_target_signal(void)
 value wcaml_nscontrol_set_emitter(value vcontrol)
 {
   NSControl* control = ID(NSControl,vcontrol);
-  [control setAction:@selector(fireSignal)];
+  [control setAction:@selector(fireSignal:)];
   [control setTarget:wcaml_target_signal()];
   return vcontrol ;
 }
@@ -35,9 +35,19 @@ value wcaml_nscontrol_set_emitter(value vcontrol)
 /* --- NSButton                                                           --- */
 /* -------------------------------------------------------------------------- */
 
-value wcaml_nsbutton_create(value vunit)
+value wcaml_nsbutton_create(value vcode)
 {
-  NSRect frame = NSMakeRect(0,0,80,12);
-  NSButton* button = [[NSButton alloc] initWithFrame:frame];
+  NSButton* button = [[NSButton alloc] init];
+  switch(Int_val(vcode)) {
+  case 0: 
+    // ---- Push Button
+    [button setButtonType:NSMomentaryPushInButton];
+    [button setBezelStyle:NSRoundedBezelStyle];
+    break;
+  case 1:
+    // ---- Checkbox Button
+    [button setButtonType:NSSwitchButton];
+    break;
+  }
   return (value) button;
 }

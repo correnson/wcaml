@@ -42,7 +42,7 @@ object
 end
 
 (* -------------------------------------------------------------------------- *)
-(* ---  Buttons                                                           --- *)
+(* ---  Button                                                            --- *)
 (* -------------------------------------------------------------------------- *)
 
 class button ?label ?tooltip ?callback () =
@@ -51,6 +51,34 @@ object
   inherit Port.control ?tooltip w as control
   inherit! [unit] Event.signal as signal
   method! set_enabled e = control#set_enabled e ; signal#set_enabled e
-  initializer Event.option signal#connect callback
   method set_label = w#set_label
+  initializer 
+    begin
+      w#misc#set_can_focus false ;
+      w#set_focus_on_click false ;
+      Event.option signal#connect callback ;
+      ignore (w#connect#clicked ~callback:signal#fire) ;
+    end
+end
+
+(* -------------------------------------------------------------------------- *)
+(* ---  Check Box                                                         --- *)
+(* -------------------------------------------------------------------------- *)
+
+class checkbox ?label ?tooltip ?(value=false) () =
+  let w = GButton.check_button ?label () in
+object(self)
+  inherit Port.control ?tooltip w as control
+  inherit! [bool] Event.selector value as state
+  method! set_enabled e = control#set_enabled e ; state#set_enabled e
+  method! set e = w#set_active e ; state#set e
+  method private updated () = state#set w#active
+  method set_label = w#set_label
+  initializer
+    begin
+      w#misc#set_can_focus false ;
+      w#set_focus_on_click false ;
+      w#set_active value ;
+      ignore (w#connect#toggled ~callback:self#updated) ;
+    end
 end

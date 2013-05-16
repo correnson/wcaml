@@ -89,6 +89,7 @@ static void wcaml_window_menu(NSMenu * menu)
   
   //---- Menu Bar -------------
   menubar = [[[NSMenu alloc] initWithTitle:@"MainMenu"] autorelease];
+  [NSApp setMainMenu:menubar];
 
   //---- Application Menu -----
   item = [menubar addItemWithTitle:@"Apple" action:NULL keyEquivalent:@""];
@@ -101,11 +102,10 @@ static void wcaml_window_menu(NSMenu * menu)
   item = [menubar addItemWithTitle:@"Window" action:NULL keyEquivalent:@""];
   menu = [[[NSMenu alloc] initWithTitle:@"Window"] autorelease];
   [menubar setSubmenu:menu forItem:item];
-  [NSApp setWindowsMenu:menu];
   wcaml_window_menu(menu);
+  [NSApp setWindowsMenu:menu];
 
   //---- That's It ------------
-  [NSApp setMainMenu:menubar];
 }
 
 @end

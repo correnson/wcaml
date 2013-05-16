@@ -6,8 +6,7 @@
 
 value wcaml_nstext_create(value vunit)
 {
-  NSRect frame = NSMakeRect(0,0,60,20);
-  NSTextView * text = [[NSTextView alloc] initWithFrame:frame];
+  NSTextView * text = [[NSTextView alloc] init];
   return (value) text;
 }
 

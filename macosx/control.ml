@@ -52,11 +52,11 @@ object(self)
 end
 
 (* -------------------------------------------------------------------------- *)
-(* --- Buttons                                                            --- *)
+(* --- Button                                                             --- *)
 (* -------------------------------------------------------------------------- *)
 
 class button ?label ?tooltip ?callback () =
-  let w = NSButton.create () in
+  let w = NSButton.create 0 in
 object(self)
   inherit NSControl.control ?tooltip (NSButton.as_control w) as control
   inherit! [unit] Event.signal as signal
@@ -70,3 +70,25 @@ object(self)
       Event.option self#set_label label ;
     end
 end
+
+(* -------------------------------------------------------------------------- *)
+(* --- Check Box                                                          --- *)
+(* -------------------------------------------------------------------------- *)
+
+class checkbox ?label ?tooltip ?(value=false) () =
+  let w = NSButton.create 1 in
+object(self)
+  inherit NSControl.control ?tooltip (NSButton.as_control w) as control
+  inherit! [bool] Event.selector value as state
+  method! set_enabled e = control#set_enabled e ; state#set_enabled e
+  method! set e = state#set e ; NSCell.set_state (NSButton.as_cell w) e
+  method private updated () = state#set (NSCell.get_state (NSButton.as_cell w))
+  method set_label s = 
+    NSCell.set_title (NSButton.as_cell w) (NSString.of_string s)
+  initializer 
+    begin
+      NSControl.bind (NSButton.as_control w) self#updated ;
+      Event.option self#set_label label ;
+    end
+end
+

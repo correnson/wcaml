@@ -19,5 +19,6 @@
 //------------------------------------
 #define ID(CNAME,vid) ((CNAME*) (vid))
 #define BOOL(v) ( (v) == Val_true ? YES : NO )
+#define COND(v) ( (v) == Val_true )
 #define VBOOL(v) ((v) ? Val_true : Val_false )
 //------------------------------------
