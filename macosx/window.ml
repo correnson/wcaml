@@ -1,6 +1,7 @@
 open Widget
 open Event
 open Port
+open Portcontrol
 
 (* -------------------------------------------------------------------------- *)
 (* --- Cocoa Port                                                         --- *)
@@ -65,7 +66,7 @@ object(self)
   method focus = focus
   method on_focus = focus#connect
   method request_focus () = NSWindow.request_focus window
-  initializer Focus.register window focus#fire
+  initializer Focus.bind window focus#fire
 
   (*--- VISIBLE ---*)
   method set_visible e =
@@ -77,7 +78,7 @@ object(self)
   method on_close = close#connect
   method set_content widget = NSWindow.set_content window (NSView.coerce widget)
   initializer Event.option self#set_content content
-  initializer Close.register window close#fire
+  initializer Close.bind window close#fire
 
   (*--- Initial ---*)
   initializer

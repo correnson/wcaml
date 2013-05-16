@@ -12,7 +12,7 @@ end
 
 module Service( S : ServiceId ) :
 sig
-  val register : S.nsobject -> S.signature -> unit
+  val bind : S.nsobject -> S.signature -> unit
   val remove : S.nsobject -> unit
 end
 
@@ -40,24 +40,4 @@ sig
   val to_list : 'a t -> 'a list
   val of_array : 'a array -> 'a t
   val to_array : 'a t -> 'a array
-end
-
-(** {2 Views} *)
-
-module NSView :
-sig
-  type t
-  val key : t Property.key
-  val coerce : #Property.bundle -> t
-  external set_tooltip : t -> NSString.t -> unit = "wcaml_nsview_set_tooltip"
-  class bundle : t -> 
-  object
-    inherit Property.bundle
-  end
-end
-
-module NSCell :
-sig
-  type t
-  external set_enabled : t -> bool -> unit = "wcaml_nscell_set_enabled"
 end

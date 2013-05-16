@@ -19,7 +19,7 @@ value wcaml_nswindow_cascading(value unit)
 
 void wcaml_callback_nswindow_focus(NSWindow * window,BOOL focus)
 {
-  static value * service = NULL ;
+  static value* service = NULL ;
   if (!service) service = caml_named_value("nswindow_focus");
   if (service) caml_callback2( *service , (value) window , VBOOL(focus) );
   return;
@@ -27,7 +27,7 @@ void wcaml_callback_nswindow_focus(NSWindow * window,BOOL focus)
 
 void wcaml_callback_nswindow_close(NSWindow * window)
 {
-  static value * service = NULL ;
+  static value* service = NULL ;
   if (!service) service = caml_named_value("nswindow_close");
   if (service) caml_callback2( *service , (value) window , Val_unit );
   return;

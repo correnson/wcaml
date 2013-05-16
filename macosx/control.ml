@@ -5,6 +5,7 @@
 open Event
 open Widget
 open Port
+open Portcontrol
 
 (* -------------------------------------------------------------------------- *)
 (* --- Text Views                                                         --- *)
@@ -38,7 +39,7 @@ type style = [ `Label | `Title | `Descr ]
 class label ?text ?(align=`Left) ?(style=`Label) () =
   let w = NSText.create () in
 object(self)
-  inherit NSView.bundle (NSText.as_view w)
+  inherit NSView.view (NSText.as_view w)
   method coerce = (self :> Widget.widget)
   method set_enabled (_:bool) = ()
   method set_text s = NSText.set_string w (NSString.of_string s)
@@ -50,3 +51,22 @@ object(self)
     end
 end
 
+(* -------------------------------------------------------------------------- *)
+(* --- Buttons                                                            --- *)
+(* -------------------------------------------------------------------------- *)
+
+class button ?label ?tooltip ?callback () =
+  let w = NSButton.create () in
+object(self)
+  inherit NSControl.control ?tooltip (NSButton.as_control w) as control
+  inherit! [unit] Event.signal as signal
+  method! set_enabled e = control#set_enabled e ; signal#set_enabled e
+  method set_label s = 
+    NSCell.set_title (NSButton.as_cell w) (NSString.of_string s)
+  initializer 
+    begin
+      NSControl.bind (NSButton.as_control w) signal#fire ;
+      Event.option signal#connect callback ;
+      Event.option self#set_label label ;
+    end
+end

@@ -27,7 +27,7 @@ struct
   let callback lnk =
     try Hashtbl.find registry lnk
     with Not_found -> S.default
-  let register = Hashtbl.replace registry
+  let bind = Hashtbl.replace registry
   let remove = Hashtbl.remove registry
   let () =
     begin
@@ -79,27 +79,4 @@ struct
   let to_array w =
     Array.init (count w) (get w)
 
-end
-
-(* -------------------------------------------------------------------------- *)
-(* --- NSView                                                             --- *)
-(* -------------------------------------------------------------------------- *)
-
-module NSView =
-struct
-  type t
-  external set_tooltip : t -> NSString.t -> unit = "wcaml_nsview_set_tooltip"
-  let key : t Property.key = Property.register ()
-  let coerce (w : #Property.bundle) = w#get_prop key
-  class bundle (w : t) =
-  object(self)
-    inherit Property.bundle
-    initializer self#set_prop key w
-  end
-end
-
-module NSCell =
-struct
-  type t
-  external set_enabled : t -> bool -> unit = "wcaml_nscell_set_enabled"
 end
