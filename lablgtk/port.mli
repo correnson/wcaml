@@ -5,3 +5,4 @@
 val widget : GObj.widget Property.key
 
 class widget : #GObj.widget -> Widget.widget
+class control : ?tooltip:string -> #GObj.widget -> Widget.control

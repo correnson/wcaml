@@ -40,3 +40,17 @@ object
     | `Title -> title_font w
     | `Descr -> descr_font w ; w#set_line_wrap true
 end
+
+(* -------------------------------------------------------------------------- *)
+(* ---  Buttons                                                           --- *)
+(* -------------------------------------------------------------------------- *)
+
+class button ?label ?tooltip ?callback () =
+  let w = GButton.button ?label () in
+object
+  inherit Port.control ?tooltip w as control
+  inherit! [unit] Event.signal as signal
+  method! set_enabled e = control#set_enabled e ; signal#set_enabled e
+  initializer Event.option signal#connect callback
+  method set_label = w#set_label
+end
