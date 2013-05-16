@@ -13,3 +13,6 @@ value wcaml_nstext_set_editable(value vtext,value veditable);
 value wcaml_nstext_set_string(value vtext,value vstring);
 // NSTextView -> NSString -> unit
 
+value wcaml_nstext_set_attribute(value vtext,value vcode);
+// NSTextView -> int -> unit
+

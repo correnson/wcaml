@@ -32,7 +32,9 @@ WCAML_CMX=$(addsuffix .cmx, $(WCAML_LIB) $(WCAML_SRC))
 
 # --------------------------------------------------------------------------
 
-OBJC= CSapp.o CSmain.o CSdata.o CSuser.o CSwindow.o CScell.o CSview.o
+OBJC= \
+	CSapp.o CSmain.o CSdata.o CSuser.o CSwindow.o \
+	CScell.o CSview.o CStext.o
 
 # --------------------------------------------------------------------------
 
