@@ -48,6 +48,10 @@ value wcaml_nsbutton_create(value vcode)
     // ---- Checkbox Button
     [button setButtonType:NSSwitchButton];
     break;
+  case 2:
+    // ---- Radio Button
+    [button setButtonType:NSRadioButton];
+    break;
   }
   return (value) button;
 }

@@ -92,3 +92,37 @@ object(self)
     end
 end
 
+(* -------------------------------------------------------------------------- *)
+(* --- Radio Groups                                                       --- *)
+(* -------------------------------------------------------------------------- *)
+
+class ['a] radio ?label ?tooltip ?group ?value () =
+  let w = NSButton.create 2 in
+object(self)
+  inherit NSControl.control ?tooltip (NSButton.as_control w) as control
+  method set_label s = 
+    NSCell.set_title (NSButton.as_cell w) (NSString.of_string s)
+  val mutable select : 'a selector option  = group
+  val mutable option : 'a option = value
+
+  method set_group g = select <- Some g ; self#update
+  method set_value v = option <- Some v ; self#update
+
+  method private clicked () = match select , option with
+    | Some g , Some v -> g#set v
+    | _ -> ()
+
+  method private update =
+    let st = match select , option with
+      | Some g , Some v -> g#get = v
+      | _ -> false
+    in NSCell.set_state (NSButton.as_cell w) st
+
+  initializer 
+    begin
+      NSControl.bind (NSButton.as_control w) self#clicked ;
+      Event.option self#set_label label ;
+      self#update ;
+    end
+end
+

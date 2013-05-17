@@ -88,7 +88,7 @@ end
 (* -------------------------------------------------------------------------- *)
 
 let groups : (int,Gtk.radio_button Gtk.group) Hashtbl.t = Hashtbl.create 63
-let set_group (r : GButton.radio_button) (s : _ selector) (update : unit -> unit) =
+let set_group (r : GButton.radio_button) (s : _ selector) update : unit =
   let id = Oo.id s in
   s#on_event update ;
   begin

@@ -35,3 +35,13 @@ object
   inherit [bool] Event.selector
   method set_label : string -> unit
 end
+
+class ['a] radio : 
+  ?label:string -> ?tooltip:string -> 
+  ?group:'a selector -> ?value:'a -> unit ->
+object
+  inherit Widget.control
+  method set_label : string -> unit
+  method set_group : 'a selector -> unit
+  method set_value : 'a -> unit
+end
