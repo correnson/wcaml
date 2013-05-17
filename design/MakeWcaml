@@ -6,7 +6,7 @@
 WCAML_LIB= config property event
 
 # Modules with fixed API
-WCAML_API= main user widget window control
+WCAML_API= main user widget window control layout
 
 WCAML_MLI=$(addsuffix .mli,$(WCAML_LIB) $(WCAML_API))
 WCAML_ML=$(addsuffix .ml,$(WCAML_LIB))

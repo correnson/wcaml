@@ -31,7 +31,7 @@ object(self)
 
   (*--- CONTENT & CLOSING ---*)
   method on_close = close#connect
-  method set_content (w:widget) = win#add (w#get_prop Port.widget)
+  method set_content (w:pane) = win#add (Port.get_widget w)
   initializer
     begin
       Event.option self#set_content content ;

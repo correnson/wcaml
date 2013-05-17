@@ -10,6 +10,14 @@ object
   method set_enabled : bool action
 end
 
+(** Some window's part that embed controls or sub-panes *)
+class type pane =
+object
+  inherit Property.bundle
+  method coerce : pane (** Returns self *)
+  method request_focus : unit action
+end
+
 (** Focus capabilities *)
 class type focus =
 object
@@ -31,11 +39,4 @@ class type control =
 object
   inherit widget
   method set_tooltip : string -> unit
-end
-
-(** Some window's part that embed controls or sub-panes *)
-class type pane =
-object
-  inherit widget
-  inherit focus
 end

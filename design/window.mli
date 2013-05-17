@@ -14,7 +14,7 @@ open Event
 class toplevel : 
   id:string -> 
   ?title:string ->      
-  ?content:widget ->    
+  ?content:pane ->    
   ?show:bool ->         
   ?focus:bool -> unit ->
 object
