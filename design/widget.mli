@@ -32,3 +32,10 @@ object
   inherit widget
   method set_tooltip : string -> unit
 end
+
+(** Some window's part that embed controls or sub-panes *)
+class type pane =
+object
+  inherit widget
+  inherit focus
+end
