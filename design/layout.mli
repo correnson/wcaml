@@ -11,8 +11,7 @@ open Widget
     
     Controls in a row are left-aligned and extends when appropriate to
     the right edge of the form. It is possible to layout several
-    controls in a row, horizontally or vertically. Trailing controls from
-    horizontal multi-controls rows are aligned with each others.
+    controls in a row, horizontally or vertically.
     
     The form is typically filled in a left-to-right, downward order.
     Sections are bold labels that cross the form
@@ -27,4 +26,5 @@ object
   method add_control : ?label:string -> Widget.control -> unit
   method add_hbox : ?label:string -> Widget.control list -> unit
   method add_vbox : ?label:string -> Widget.control list -> unit
+  method add_pane : ?label:string -> Widget.pane -> unit
 end
