@@ -77,7 +77,7 @@ struct
   class widget w =
   object(self)
     inherit NSView.view (as_view w)
-    method debug = NSView.debug (as_view w)
+    method debug () = NSView.debug (as_view w)
     method widget = (self :> Widget.widget)
     method set_enabled s = set_enabled w s
   end
@@ -116,7 +116,6 @@ struct
   let as_control : t -> NSControl.t = Obj.magic
   let as_view : t -> NSView.t = Obj.magic
   external create : unit -> t = "wcaml_nstextfield_create"
-  external set_string : t -> NSString.t -> unit = "wcaml_nstextfield_set_string"
   external set_attribute : t -> int -> unit = "wcaml_nstextfield_set_attribute"
   let attr = function
     | `Left -> 1

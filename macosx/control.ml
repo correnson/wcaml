@@ -25,7 +25,8 @@ object(self)
       Event.option self#set_text text ;
       NSTextField.set_attribute w `Static ;
       NSTextField.set_attribute w (align :> NSTextField.attr) ;
-      NSTextField.set_attribute w (style :> NSTextField.attr) ;
+      ignore style ;
+      (* NSTextField.set_attribute w (style :> NSTextField.attr) ; *)
     end
 end
 

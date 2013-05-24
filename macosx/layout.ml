@@ -8,19 +8,18 @@ open Port
 open Portcontrol
 open NSView
 
-let dHsep = 12 (* Horizontal Separation *)
-let dTsep = 24 (* Indented Separation *)
+let dHsep =  8 (* Horizontal Separation *)
 let dVsep =  6 (* Vertical Separation *)
-let dSect = 12 (* Section Separation *)
-let dLine = 24 (* Empty Line Separation *)
+let dBorder = 12 (* Section Separation *)
+let dSection = 24 (* Empty Line Separation *)
 
 class form () =
   let box = NSView.create () in
 object(self)
   inherit NSView.pane box
 
-  val mutable xpadding = dHsep
-  val mutable ypadding = dSect
+  val mutable xpadding = dBorder
+  val mutable ypadding = dBorder
   val mutable lastrow : NSView.t list = [box]
   val mutable lastctr : NSView.t = Port.nil
 
@@ -29,7 +28,7 @@ object(self)
       | [] , _ | _ , [] -> ()
       | [last] , [ctrl] -> 
 	  NSView.set_layout box kVsep last ctrl ypadding ;
-	  NSView.set_layout box kVfill ctrl box dSect ;
+	  NSView.set_layout box kVfill ctrl box dSection ;
       | _ ->
 	  List.iter
 	    (fun a ->
@@ -40,7 +39,7 @@ object(self)
 	    lastrow ;
 	  List.iter
 	    (fun b ->
-	       NSView.set_layout box kVfill b box dSect)
+	       NSView.set_layout box kVfill b box dSection)
 	    ctrls
       
   method private column_layout = function
@@ -94,7 +93,7 @@ object(self)
 	    lastrow <- ctrls ; 
 	    ypadding <- dVsep
 	      
-  method add_separation = if ypadding <= dHsep then ypadding <- dLine
+  method add_separation = if ypadding <= dHsep then ypadding <- dSection
     
   method add_section text =
     begin
@@ -103,12 +102,12 @@ object(self)
       NSView.add_subview box lview ;
       NSView.set_layout box kHsep box lview dHsep ;
       NSView.set_layout box kHfill lview box dHsep ;
-      ypadding <- dLine ;
+      ypadding <- dSection ;
       let row = [lview] in 
       self#vertical_layout row ;
       lastrow <- row ; 
-      ypadding <- dSect ; 
-      xpadding <- dTsep ;
+      ypadding <- dSection ; 
+      xpadding <- dSection ;
     end
 	  
   method add_control ?label (control : Widget.widget) = 
@@ -136,33 +135,3 @@ object(self)
 	  ypadding <- dVsep
 
 end
-
-
-let debug () =
-  let open Port in
-  let open Portcontrol in
-  begin
-    let shell = new Window.toplevel ~id:"debug" ~title:"Debug Layout" () in
-    let box = NSView.create () in
-    let pane = new NSView.pane box in
-    let label = new Control.label ~text:"Label:" () in
-    (* let button = new Control.button ~label:"Button" () in *)
-
-    let l = NSView.get label in
-    (* let b = NSView.coerce button in *)
-    
-    NSView.add_subview box l ;
-    (* NSView.add_subview box b ; *)
-    NSView.set_layout box kHfill box l 20 ;
-    NSView.set_layout box kHfill l box 20 ;
-    NSView.set_layout box kVsep box l 20 ;
-    NSView.set_layout box kVfill l box 20 ;
-    shell#set_content pane#pane ;
-    shell#on_close Main.quit ;
-
-    NSView.debug box ;
-    Main.on_main (fun () -> NSView.debug l) ;
-
-  end
-
-let () = Main.on_init debug

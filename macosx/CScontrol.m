@@ -85,7 +85,7 @@ value wcaml_nsbutton_create(value vcode)
 
 value wcaml_nstextfield_create(value vunit)
 {
-  NSTextView * text = [[NSTextView alloc] init];
+  NSTextField * text = [[NSTextField alloc] init];
   [text setTranslatesAutoresizingMaskIntoConstraints:NO];
   return (value) text;
 }
@@ -97,9 +97,12 @@ value wcaml_nstextfield_set_attribute(value vtextfield,value vattr)
   case 1: [textField setAlignment:NSLeftTextAlignment]; break;
   case 2: [textField setAlignment:NSRightTextAlignment]; break;
   case 3: [textField setAlignment:NSCenterTextAlignment]; break;
-  case 4: [textField setFont:[NSFont labelFontOfSize:0]]; break;
+  case 4: [textField setFont:[NSFont controlContentFontOfSize:0]]; break;
   case 5: [textField setFont:[NSFont boldSystemFontOfSize:0]]; break;
-  case 6: [textField setFont:[NSFont systemFontOfSize:[NSFont smallSystemFontSize]]]; break;
+  case 6: 
+    [textField setFont:[NSFont controlContentFontOfSize:
+				 [NSFont smallSystemFontSize]]];
+    break;
   case 10: 
     [textField setBordered:NO];
     [textField setBezeled:NO];
