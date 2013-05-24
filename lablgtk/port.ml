@@ -24,7 +24,7 @@ class widget (ly : layout) (w : #GObj.widget) =
 object(self)
   inherit Property.bundle
   method widget = (self :> Widget.widget)
-  method debug = ()
+  method debug () = ()
   method set_enabled = w#misc#set_sensitive
   initializer self#set_prop widget (w :> GObj.widget)
   initializer self#set_prop layout ly

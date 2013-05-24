@@ -8,7 +8,7 @@ object
   inherit Property.bundle
   method set_enabled : bool action
   method widget : widget (** Returns self *)
-  method debug : unit
+  method debug : unit action
 end
 
 (** Widget with user interaction *)
