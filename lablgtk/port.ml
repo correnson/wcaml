@@ -15,7 +15,7 @@ let layout : layout Property.key = Property.register ()
 class pane (w : #GObj.widget) =
 object(self)
   inherit Property.bundle
-  method coerce = (self :> Widget.pane)
+  method pane = (self :> Widget.pane)
   method request_focus = w#misc#grab_focus
   initializer self#set_prop widget (w :> GObj.widget)
 end
@@ -23,15 +23,17 @@ end
 class widget (ly : layout) (w : #GObj.widget) =
 object(self)
   inherit Property.bundle
-  method coerce = (self :> Widget.widget)
+  method widget = (self :> Widget.widget)
+  method debug = ()
   method set_enabled = w#misc#set_sensitive
   initializer self#set_prop widget (w :> GObj.widget)
   initializer self#set_prop layout ly
 end
 
 class control ?tooltip layout (w : #GObj.widget) =
-object
+object(self)
   inherit widget layout w
+  method control = (self :> Widget.control)
   method set_tooltip = w#misc#set_tooltip_text
   initializer Event.option w#misc#set_tooltip_text tooltip
 end

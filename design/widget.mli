@@ -6,15 +6,24 @@ open Event
 class type widget = 
 object
   inherit Property.bundle
-  method coerce : widget (** Returns self *)
   method set_enabled : bool action
+  method widget : widget (** Returns self *)
+  method debug : unit
+end
+
+(** Widget with user interaction *)
+class type control =
+object
+  inherit widget
+  method control : control (** Returns self *)
+  method set_tooltip : string -> unit
 end
 
 (** Some window's part that embed controls or sub-panes *)
 class type pane =
 object
   inherit Property.bundle
-  method coerce : pane (** Returns self *)
+  method pane : pane (** Returns self *)
   method request_focus : unit action
 end
 
@@ -32,11 +41,4 @@ object
   method set_visible : bool action
   method show : unit action
   method hide : unit action
-end
-
-(** Widget with tooltip *)
-class type control =
-object
-  inherit widget
-  method set_tooltip : string -> unit
 end

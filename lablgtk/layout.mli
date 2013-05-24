@@ -23,8 +23,8 @@ object
   inherit Widget.pane
   method add_separation : unit
   method add_section : string -> unit
-  method add_control : ?label:string -> Widget.control -> unit
-  method add_hbox : ?label:string -> Widget.control list -> unit
-  method add_vbox : ?label:string -> Widget.control list -> unit
+  method add_control : ?label:string -> Widget.widget -> unit
+  method add_hbox : ?label:string -> Widget.widget list -> unit
+  method add_vbox : ?label:string -> Widget.widget list -> unit
   method add_pane : ?label:string -> Widget.pane -> unit
 end

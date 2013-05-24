@@ -45,19 +45,19 @@ object(self)
     | Port.Field -> table#attach ~left:1 ~top ~expand:`X ~fill:`X widget
     | Port.Boxed -> table#attach ~left:1 ~top ~expand:`BOTH widget
 	  
-  method add_control ?label (control : Widget.control) =
+  method add_control ?label (widget : Widget.widget) =
     begin
       self#add_label label ;
-      let layout = Port.get_layout control in
-      let widget = Port.get_widget control in
+      let layout = Port.get_layout widget in
+      let widget = Port.get_widget widget in
       self#add_widget layout widget ;
       top <- succ top ;
     end
 
   method add_hbox ?label = function
     | [] -> ()
-    | [control] -> self#add_control ?label control
-    | controls ->
+    | [widget] -> self#add_control ?label widget
+    | widgets ->
 	begin
 	  self#add_label label ;
 	  let hbox = GPack.hbox ~homogeneous:false ~spacing:8 () in
@@ -72,14 +72,14 @@ object(self)
 		 let expand = Port.hexpand layout in
 		 hbox#pack ~expand widget ;
 		 fill (x || expand) (y || Port.hexpand layout) others
-	   in fill false false controls ;
+	   in fill false false widgets ;
 	   top <- succ top ;
 	 end
 
-  method add_vbox ?label controls = if controls <> [] then
+  method add_vbox ?label widgets = if widgets <> [] then
     begin
       self#add_label label ;
-      List.iter self#add_control controls ;
+      List.iter self#add_control widgets ;
     end
       
   method add_pane ?label (panel : Widget.pane) =
