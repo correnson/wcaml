@@ -8,28 +8,6 @@ open Port
 open Portcontrol
 
 (* -------------------------------------------------------------------------- *)
-(* --- Text Views                                                         --- *)
-(* -------------------------------------------------------------------------- *)
-
-module NSText =
-struct
-  type t
-  let as_view : t -> NSView.t = Obj.magic
-  external create : unit -> t = "wcaml_nstext_create"
-  external set_editable : t -> bool -> unit = "wcaml_nstext_set_editable"
-  external set_string : t -> NSString.t -> unit = "wcaml_nstext_set_string"
-  external set_attribute : t -> int -> unit = "wcaml_nstext_set_attribute"
-  let attribute = function
-    | `Left -> 1
-    | `Right -> 2
-    | `Center -> 3
-    | `Label -> 4
-    | `Title -> 5
-    | `Descr -> 6
-  let set_attribute w a = set_attribute w (attribute a)
-end
-
-(* -------------------------------------------------------------------------- *)
 (* --- Labels                                                             --- *)
 (* -------------------------------------------------------------------------- *)
 
@@ -37,17 +15,17 @@ type align = [ `Left | `Right | `Center ]
 type style = [ `Label | `Title | `Descr ]
 
 class label ?text ?(align=`Left) ?(style=`Label) () =
-  let w = NSText.create () in
+  let w = NSTextField.create () in
 object(self)
-  inherit NSView.view (NSText.as_view w)
-  method coerce = (self :> Widget.widget)
-  method set_enabled (_:bool) = ()
-  method set_text s = NSText.set_string w (NSString.of_string s)
+  inherit NSControl.widget (NSTextField.as_control w)
+  method set_text s = 
+    NSControl.set_string (NSTextField.as_control w) (NSString.of_string s)
   initializer 
     begin
       Event.option self#set_text text ;
-      NSText.set_attribute w align ;
-      NSText.set_attribute w style ;
+      NSTextField.set_attribute w `Static ;
+      NSTextField.set_attribute w (align :> NSTextField.attr) ;
+      NSTextField.set_attribute w (style :> NSTextField.attr) ;
     end
 end
 
@@ -56,16 +34,17 @@ end
 (* -------------------------------------------------------------------------- *)
 
 class button ?label ?tooltip ?callback () =
-  let w = NSButton.create 0 in
+  let w = NSButton.create NSButton.kPush in
 object(self)
-  inherit NSControl.control ?tooltip (NSButton.as_control w) as control
+  inherit NSControl.control ?tooltip 
+    (NSButton.as_control w) as control
   inherit! [unit] Event.signal as signal
   method! set_enabled e = control#set_enabled e ; signal#set_enabled e
   method set_label s = 
     NSCell.set_title (NSButton.as_cell w) (NSString.of_string s)
   initializer 
     begin
-      NSControl.bind (NSButton.as_control w) signal#fire ;
+      NSControl.set_handler (NSButton.as_control w) signal#fire ;
       Event.option signal#connect callback ;
       Event.option self#set_label label ;
     end
@@ -76,9 +55,10 @@ end
 (* -------------------------------------------------------------------------- *)
 
 class checkbox ?label ?tooltip ?(value=false) () =
-  let w = NSButton.create 1 in
+  let w = NSButton.create NSButton.kCheck in
 object(self)
-  inherit NSControl.control ?tooltip (NSButton.as_control w) as control
+  inherit NSControl.control ?tooltip 
+    (NSButton.as_control w) as control
   inherit! [bool] Event.selector value as state
   method! set_enabled e = control#set_enabled e ; state#set_enabled e
   method! set e = state#set e ; NSCell.set_state (NSButton.as_cell w) e
@@ -87,7 +67,7 @@ object(self)
     NSCell.set_title (NSButton.as_cell w) (NSString.of_string s)
   initializer 
     begin
-      NSControl.bind (NSButton.as_control w) self#updated ;
+      NSControl.set_handler (NSButton.as_control w) self#updated ;
       Event.option self#set_label label ;
     end
 end
@@ -97,9 +77,10 @@ end
 (* -------------------------------------------------------------------------- *)
 
 class ['a] radio ?label ?tooltip ?group ?value () =
-  let w = NSButton.create 2 in
+  let w = NSButton.create NSButton.kRadio in
 object(self)
-  inherit NSControl.control ?tooltip (NSButton.as_control w) as control
+  inherit NSControl.control ?tooltip 
+    (NSButton.as_control w) as control
   method set_label s = 
     NSCell.set_title (NSButton.as_cell w) (NSString.of_string s)
   val mutable select : 'a selector option  = None
@@ -120,7 +101,7 @@ object(self)
 
   initializer 
     begin
-      NSControl.bind (NSButton.as_control w) self#clicked ;
+      NSControl.set_handler (NSButton.as_control w) self#clicked ;
       Event.option self#set_label label ;
       Event.option self#set_group group ;
     end

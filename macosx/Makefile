@@ -26,7 +26,7 @@ OPTCMX= -for-pack Wcaml
 
 WCAML_SRC= \
 	main port portcontrol \
-	user window control
+	user window control layout
 
 WCAML_TYPES= widget.cmi
 WCAML_CMI=$(addsuffix .cmi, $(WCAML_LIB) $(WCAML_SRC))
@@ -64,14 +64,14 @@ uninstall:
 include ../design/MakeOcaml
 # --------------------------------------------------------------------------
 
-CSmain.m: CSapp.h
-CSuser.m: CSdata.h
-CSwindow.m:
-CScell.m:
-CSview.m:
-CScontrol.m:
+CSmain.o: CSmain.h CSapp.h
+CSuser.o: CSuser.h CSdata.h
+CSwindow.o: CSwindow.h
+CScell.o: CScell.h
+CSview.o: CSview.h
+CScontrol.o: CScontrol.h
 
-.m.h: CS.h
-.m.o:
+.m.o: CS.h
 	gcc -c -I$(OCAMLLIB) -O2 $<
+
 # --------------------------------------------------------------------------

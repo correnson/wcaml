@@ -106,9 +106,11 @@ value wcaml_nswindow_set_edited(value vwindow,value vedited)
   return Val_unit;
 }
 
-value wcaml_nswindow_set_content(value vwindow,value vwidget)
+value wcaml_nswindow_set_content(value vwindow,value vcontent)
 {
-  [ID(NSWindow,vwindow) setContentView:ID(NSView,vwidget)];
+  NSWindow *window = ID(NSWindow,vwindow);
+  NSView *content = ID(NSView,vcontent);
+  [window setContentView:content];
   return Val_unit;
 }
 

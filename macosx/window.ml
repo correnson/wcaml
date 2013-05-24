@@ -47,7 +47,7 @@ module Close = Service
 
 let main = ref true
 
-class toplevel ~id ?title ?(content:widget option) ?(show=true) ?(focus=false) () =
+class toplevel ~id ?title ?(content:pane option) ?(show=true) ?(focus=false) () =
   let request = focus in
   let window = NSWindow.create (NSString.of_string id) in
   let close : unit signal = new Event.signal in
@@ -76,7 +76,7 @@ object(self)
 
   (*--- Content & Closing ---*)
   method on_close = close#connect
-  method set_content widget = NSWindow.set_content window (NSView.coerce widget)
+  method set_content widget = NSWindow.set_content window (NSView.get widget)
   initializer Event.option self#set_content content
   initializer Close.bind window close#fire
 

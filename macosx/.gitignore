@@ -9,3 +9,5 @@ main.mli
 user.mli
 widget.mli
 window.mli
+control.mli
+layout.mli

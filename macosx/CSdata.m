@@ -1,9 +1,13 @@
 #import "CSdata.h"
 
+value wcaml_nil(value vunit)
+{
+  return (value) nil;
+}
+
 // --------------------------------------------------------------------------
 // --- NSString                                                           ---
 // --------------------------------------------------------------------------
-
 
 value wcaml_value_of_nsstring(NSString *theText)
 {

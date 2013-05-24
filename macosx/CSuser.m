@@ -2,7 +2,7 @@
 /* --- User Preferences                                                   --- */
 /* -------------------------------------------------------------------------- */
 
-#import "CSuser.h"
+#import "CS.h"
 
 value wcaml_set_user_object(value nskey,value nsval)
 {
