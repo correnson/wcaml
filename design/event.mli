@@ -45,6 +45,9 @@ object
     (** Transmit the current value and connect changes to signal. *)
 end
 
+(** Selector listening to changes only. Default comparator is [(=)]. *)
+class ['a] state : ?equal:('a -> 'a -> bool) -> 'a -> ['a] selector
+
 val mirror_values : master:'a #selector -> client:'a #selector -> unit
   (** Bi-directional connection. The initial value is taken from [master] *)
 

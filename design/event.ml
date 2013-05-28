@@ -41,12 +41,18 @@ object(self)
   val mutable current : 'a = default
   inherit ['a] signal as s
   method get = current
-  method set x = current <- x ; s#fire x
+  method set x = s#fire x
   method! fire x = current <- x ; s#fire x
-  method! emit x () = current <- x ; s#fire x
   method send_to receiver () : unit = receiver current
   method mirror_to : 'b. ((<fire : 'a action ; ..> as 'b) -> unit) =
     fun receiver -> self#connect receiver#fire ; receiver#fire current
+end
+
+class ['a] state ?(equal=(=)) default =
+object
+  inherit ['a] selector default as super
+  method! fire x =
+    if not (equal x current) then super#fire x
 end
 
 let mirror_signals (a : 'a #signal) (b : 'a #signal) =
