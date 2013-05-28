@@ -10,4 +10,5 @@ user.mli
 widget.mli
 window.mli
 control.mli
+text.mli
 layout.mli

@@ -8,11 +8,11 @@
 // --- Predefined Application Menu
 // --------------------------------------------------------------------------
 
-static void wcaml_application_menu(NSMenu * menu)
+static void wcaml_application_menu(NSMenu *menu)
 {
-  NSString * name ;
-  NSMenuItem * item ;
-  NSString * title ;
+  NSString *name ;
+  NSMenuItem *item ;
+  NSString *title ;
   //---- Application Name -----
   name = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
 
@@ -29,7 +29,7 @@ static void wcaml_application_menu(NSMenu * menu)
   //--- Services ------------------
   [menu addItem:[NSMenuItem separatorItem]];
   item = [menu addItemWithTitle:@"Services" action:NULL keyEquivalent:@""];
-  NSMenu * servicesMenu = [[[NSMenu alloc] initWithTitle:@"Services"] autorelease];
+  NSMenu *servicesMenu = [[[NSMenu alloc] initWithTitle:@"Services"] autorelease];
   [menu setSubmenu:servicesMenu forItem:item];
   [NSApp setServicesMenu:servicesMenu];
 
@@ -61,7 +61,7 @@ static void wcaml_application_menu(NSMenu * menu)
 // --- Predefined Window Menu
 // --------------------------------------------------------------------------
 
-static void wcaml_window_menu(NSMenu * menu)
+static void wcaml_window_menu(NSMenu *menu)
 {
   [menu addItemWithTitle:NSLocalizedString(@"Minimize", nil)
 		  action:@selector(performMiniaturize:)
@@ -83,9 +83,9 @@ static void wcaml_window_menu(NSMenu * menu)
 
 -(void) applicationWillFinishLaunching:(NSNotification *)aNotification 
 {
-  NSMenu * menubar ;
-  NSMenuItem * item ;
-  NSMenu * menu ;
+  NSMenu *menubar ;
+  NSMenuItem *item ;
+  NSMenu *menu ;
   
   //---- Menu Bar -------------
   menubar = [[[NSMenu alloc] initWithTitle:@"MainMenu"] autorelease];

@@ -17,17 +17,17 @@ value wcaml_nswindow_cascading(value unit)
 // --- Callbacks
 // ---------------------------------------------------------------------------
 
-void wcaml_callback_nswindow_focus(NSWindow * window,BOOL focus)
+void wcaml_callback_nswindow_focus(NSWindow *window,BOOL focus)
 {
-  static value* service = NULL ;
+  static value *service = NULL ;
   if (!service) service = caml_named_value("nswindow_focus");
   if (service) caml_callback2( *service , (value) window , VBOOL(focus) );
   return;
 }
 
-void wcaml_callback_nswindow_close(NSWindow * window)
+void wcaml_callback_nswindow_close(NSWindow *window)
 {
-  static value* service = NULL ;
+  static value *service = NULL ;
   if (!service) service = caml_named_value("nswindow_close");
   if (service) caml_callback2( *service , (value) window , Val_unit );
   return;
@@ -64,7 +64,7 @@ void wcaml_callback_nswindow_close(NSWindow * window)
 value wcaml_nswindow_create(value vkey)
 {
   //---- Window -----------------------
-  NSWindow * wref = 
+  NSWindow *wref = 
     [[NSWindow alloc] 
       initWithContentRect:NSMakeRect(0,0,200,100)
 		styleMask:(NSTitledWindowMask|
@@ -76,13 +76,13 @@ value wcaml_nswindow_create(value vkey)
      ] ;
   [wref setReleasedWhenClosed:NO];
   //---- Delegate --------------------
-  static CSWinDelegate * delegate = nil ;
+  static CSWinDelegate *delegate = nil ;
   if (!delegate) delegate = [[CSWinDelegate alloc] init] ;
   [wref setDelegate:delegate] ;
   //---- Positionning ----------------
-  NSWindowController * controller = [wref windowController] ;
+  NSWindowController *controller = [wref windowController] ;
   [controller setShouldCascadeWindows:NO];
-  NSString * key = ID(NSString,vkey);
+  NSString *key = ID(NSString,vkey);
   BOOL framed = [wref setFrameUsingName:key] ;
   if (!framed)
     cascading = [wref cascadeTopLeftFromPoint:cascading];

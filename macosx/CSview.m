@@ -103,7 +103,7 @@ value wcaml_nsview_set_layout(value vbox,
   }
   
   //---- Register the Constraint -----------------------------------------------
-  NSLayoutConstraint* constraint = 
+  NSLayoutConstraint *constraint = 
     [NSLayoutConstraint constraintWithItem:item_2
 				 attribute:attr_2
 				 relatedBy:relation
@@ -117,11 +117,11 @@ value wcaml_nsview_set_layout(value vbox,
 
 value wcaml_nsview_debug(value vitem)
 {
-  NSView * item = ID(NSView,vitem);
-  NSArray * h = 
+  NSView *item = ID(NSView,vitem);
+  NSArray *h = 
     [item constraintsAffectingLayoutForOrientation:
 	    NSLayoutConstraintOrientationVertical];
-  NSArray * v =
+  NSArray *v =
     [item constraintsAffectingLayoutForOrientation:
 	    NSLayoutConstraintOrientationHorizontal];
   [[item window] visualizeConstraints:[h arrayByAddingObjectsFromArray:v]];

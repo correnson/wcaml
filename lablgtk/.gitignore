@@ -8,4 +8,6 @@ event.mli
 main.mli
 user.mli
 widget.mli
+control.mli
+text.mli
 window.mli

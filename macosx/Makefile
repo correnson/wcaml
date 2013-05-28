@@ -26,7 +26,7 @@ OPTCMX= -for-pack Wcaml
 
 WCAML_SRC= \
 	main port portcontrol \
-	user window control layout
+	user window control text layout
 
 WCAML_TYPES= widget.cmi
 WCAML_CMI=$(addsuffix .cmi, $(WCAML_LIB) $(WCAML_SRC))

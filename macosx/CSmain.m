@@ -5,13 +5,13 @@
 // --- Main Loop
 // ---------------------------------------------------------------------------
 
-static NSAutoreleasePool * wcaml_pool = nil ;
+static NSAutoreleasePool *wcaml_pool = nil ;
 
 value wcaml_init(value unit)
 {
   wcaml_pool = [[NSAutoreleasePool alloc] init];
   [NSApplication sharedApplication];
-  CSAppDelegate * delegate = [[CSAppDelegate alloc] init];
+  CSAppDelegate *delegate = [[CSAppDelegate alloc] init];
   [NSApp setDelegate:delegate];
   [NSApp finishLaunching];
   return Val_unit ;
