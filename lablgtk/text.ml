@@ -6,7 +6,59 @@ open Event
 open Widget
 open Port
 
+(* -------------------------------------------------------------------------- *)
+(* --- Converting Style to Tags                                           --- *)
+(* -------------------------------------------------------------------------- *)
+
 type 'a printf = ('a,Format.formatter,unit) format -> 'a
+
+(*
+let fg = function
+  | `Black -> "Black"
+  | `Grey  -> "Silver"
+  | `Dark  -> "Gray"
+  | `White -> "White"
+  | `Green -> "Green"
+  | `Orange -> "Orange"
+  | `Red -> "Red"
+  | `Blue -> "Blue"
+  | `Yellow -> "Gold"
+  | `Violet -> "BlueViolet"
+
+let bg = function
+  | `Black -> "Dark"
+  | `Grey  -> "LightGrey"
+  | `Dark  -> "DarkGray"
+  | `White -> "White"
+  | `Green -> "LightGreen"
+  | `Orange -> "SandyBrown"
+  | `Red -> "Red"
+  | `Blue -> "SkyBlue"
+  | `Yellow -> "Khaki"
+  | `Violet -> "MediumOrchid"
+
+let gstyle () = { gtext = [] ; gline = [] ; gfg = [] ; gbg = [] }
+
+let apply g = function
+  | `Text_rm -> g.gtext <- [`FONT "Cambria"]
+  | `Text_tt -> g.gtext <- [`FONT "Monospace"]
+  | `Text_sf -> g.gtext <- [`FONT "Helvetica"]
+  | `Text_bd -> g.gtext <- [`WEIGHT `BOLD]
+  | `Text_em -> g.gtext <- [`STYLE `ITALIC]
+  | `Subscript -> g.gtext <- [`SCALE `SMALL ; `RISE (-2) ; `STYLE `ITALIC]
+  | `Superscript -> g.gtext <- [`SCALE `SMALL ; `RISE 4]
+  | `Underlined -> g.gline <- [`UNDERLINE `SINGLE]
+  | `Warning -> g.gline <- [`UNDERLINE `DOUBLE] (* should be `ERROR *)
+  | `Striked -> g.gline <- [`STRIKETHROUGH true]
+  | `Fg color -> g.gfg <- [`FOREGROUND (fg color)]
+  | `Bg color -> g.gbg <- [`BACKGROUND (bg color)]
+  | `Link _ | `Mark _ -> ()
+  | `Line _ -> ()
+*)
+	
+(* -------------------------------------------------------------------------- *)
+(* --- Text Pane                                                          --- *)
+(* -------------------------------------------------------------------------- *)
   
 class textpane ?(editable=true) () =
   let scroll = GBin.scrolled_window () in
@@ -33,8 +85,9 @@ object(self)
   method clear () =
     let (start,stop) = buffer#bounds in
     buffer#delete ~start ~stop
-  method printf : 'a. ?at:int -> ?length:int -> 'a printf =
-    fun ?at ?length msg -> 
+  method printf 
+    : 'a. ?at:int -> ?length:int -> 'a printf 
+    = fun ?at ?length msg -> 
       Buffer.clear text ;
       self#set_insert at length ;
       Format.kfprintf 
@@ -82,5 +135,10 @@ object(self)
 	end in
     let fmt = Format.make_formatter output_string output_flush in
     fmtref <- Some fmt ; fmt
+
+  (* -------------------------------------------------------------------------- *)
+  (* ---  Tags Management                                                   --- *)
+  (* -------------------------------------------------------------------------- *)
+
 
 end

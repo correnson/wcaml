@@ -42,3 +42,18 @@ object
   method show : unit action
   method hide : unit action
 end
+
+(** Colors *)
+
+type color = [
+| `Black
+| `Grey
+| `Dark
+| `White
+| `Green
+| `Orange
+| `Red
+| `Blue
+| `Yellow
+| `Violet
+]

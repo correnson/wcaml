@@ -11,6 +11,6 @@ object
   method set_editable : bool -> unit
   method size : int
   method clear : unit -> unit
-  method printf : 'a. ?at:int -> ?length:int -> 'a printf  
+  method printf : 'a. ?at:int -> ?length:int -> 'a printf
 end
 
