@@ -12,6 +12,8 @@ open Port
 
 type 'a printf = ('a,Format.formatter,unit) format -> 'a
 
+type content = [ `Text | `Code ]
+
 (*
 let fg = function
   | `Black -> "Black"
@@ -60,13 +62,12 @@ let apply g = function
 (* --- Text Pane                                                          --- *)
 (* -------------------------------------------------------------------------- *)
   
-class textpane ?(editable=true) () =
+class textpane ~content ?(editable=true) () =
   let scroll = GBin.scrolled_window () in
   let buffer = GText.buffer () in
   let view = GText.view ~buffer
     ~editable ~cursor_visible:editable
     ~justification:`LEFT
-    ~wrap_mode:`NONE
     ~accepts_tab:false
     ~packing:scroll#add () in
 object(self)
@@ -75,7 +76,21 @@ object(self)
   val mutable fmtref = None
   val mutable insert = buffer#end_iter
   val text = Buffer.create 80
+
+  (* -------------------------------------------------------------------------- *)
+  (* --- View Rendering                                                     --- *)
+  (* -------------------------------------------------------------------------- *)
     
+  initializer
+    begin match content with
+      | `Text ->
+	  view#set_wrap_mode `WORD ;
+	  view#misc#modify_font_by_name "Cambria"
+      | `Code ->
+	  view#set_wrap_mode `NONE ;
+	  view#misc#modify_font_by_name "Monospace"
+    end
+
   (* -------------------------------------------------------------------------- *)
   (* ---  Basics                                                            --- *)
   (* -------------------------------------------------------------------------- *)
@@ -139,6 +154,5 @@ object(self)
   (* -------------------------------------------------------------------------- *)
   (* ---  Tags Management                                                   --- *)
   (* -------------------------------------------------------------------------- *)
-
 
 end

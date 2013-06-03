@@ -17,7 +17,6 @@ value wcaml_nstextview_create(value vunit)
   [textView setRichText:YES];
   [textView setImportsGraphics:NO];
   [[textView textContainer] setContainerSize:NSMakeSize(FLT_MAX, FLT_MAX)];
-  [[textView textContainer] setWidthTracksTextView:NO];
   [[textView textContainer] setHeightTracksTextView:NO];
   return (value) textView;
 }
@@ -32,6 +31,23 @@ value wcaml_nstextview_scroll(value vtext)
   [scrollView setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
   [scrollView setDocumentView:textView];
   return (value) (NSView *) scrollView;
+}
+
+value wcaml_nstextview_text_content(value vtext)
+{
+  NSTextView *textView = ID(NSTextView,vtext);
+  [textView setFont:[NSFont fontWithName:@"Cambria" size:10.0]];
+  [[textView textContainer] setWidthTracksTextView:YES];
+  return Val_unit;
+}
+
+value wcaml_nstextview_code_content(value vtext)
+{
+  NSTextView *textView = ID(NSTextView,vtext);
+  [textView setFont:[NSFont fontWithName:@"Monospace" size:10.0]];
+  [[textView textContainer] setContainerSize:NSMakeSize(FLT_MAX, FLT_MAX)];
+  [[textView textContainer] setWidthTracksTextView:NO];
+  return Val_unit;
 }
 
 value wcaml_nstextview_set_editable(value vtext,value vedit)

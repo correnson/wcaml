@@ -5,7 +5,9 @@ open Widget
 
 type 'a printf = ('a,Format.formatter,unit) format -> 'a
 
-class textpane : ?editable:bool -> unit ->
+type content = [ `Text | `Code ]
+
+class textpane : content:content -> ?editable:bool -> unit ->
 object
   inherit Widget.pane
   method set_editable : bool -> unit

@@ -9,6 +9,7 @@ open Portcontrol
 
 type 'a printf = ('a,Format.formatter,unit) format -> 'a
 
+type content = [ `Text | `Code ]
 
 (* -------------------------------------------------------------------------- *)
 (* ---  NSTextView Port                                                   --- *)
@@ -18,6 +19,8 @@ module NSTextView =
 struct
   type t
   external create : unit -> t = "wcaml_nstextview_create"
+  external text_content : t -> unit = "wcaml_nstextview_text_content"
+  external code_content : t -> unit = "wcaml_nstextview_code_content"
   external scroll : t -> NSView.t = "wcaml_nstextview_scroll"
   external set_editable : t -> bool -> unit = "wcaml_nstextview_set_editable"
   external length : t -> int = "wcaml_nstextview_length"
@@ -30,7 +33,7 @@ end
 (* ---  WCaml Bindings                                                    --- *)
 (* -------------------------------------------------------------------------- *)
 
-class textpane ?(editable=false) () =
+class textpane ~content ?(editable=false) () =
   let text = NSTextView.create () in
   let scroll = NSTextView.scroll text in
 object(self)
@@ -40,6 +43,16 @@ object(self)
   val mutable insert = 0
   val mutable delete = 0
   val mutable fmtref = None
+
+  (* -------------------------------------------------------------------------- *)
+  (* ---  Content                                                           --- *)
+  (* -------------------------------------------------------------------------- *)
+
+  initializer 
+    begin match content with
+      | `Text -> NSTextView.text_content text
+      | `Code -> NSTextView.code_content text
+    end
 
   (* -------------------------------------------------------------------------- *)
   (* ---  Basics                                                            --- *)
