@@ -40,7 +40,6 @@ let rec reverse url p =
   with Not_found -> 
     String.sub url p (String.length url - p)
 
-
 let infop_key out key value = 
   Printf.fprintf out "  <key>%s</key><string>%s</string>\n" key value
 
@@ -48,7 +47,7 @@ let infop_file () =
   let file = Printf.sprintf "%s/Contents/Info.plist" !bundle in
   Format.eprintf "[WCaml] %s@." file ;
   let out = open_out file in
-  let url = reverse !domain 0 ^ "." ^ !app in
+  let aid = reverse !domain 0 ^ "." ^ !app in
   begin
     output_string out "<plist version=\"1.0\">\n<dict>\n" ;
     infop_key out "CFBundleDevelopmentRegion" "English" ;
@@ -57,7 +56,7 @@ let infop_file () =
     infop_key out "CFBundleSignature" "????" ;
     infop_key out "CFBundleName" !name ;
     infop_key out "CFBundleVersion" !version ;
-    infop_key out "CFBundleIdentifier" url ;
+    infop_key out "CFBundleIdentifier" aid ;
     infop_key out "CFBundleShortVersionString" !version ;
     infop_key out "CFBundleExecutable" !app ;
     infop_key out "CFBundleIconFile" "" ;
@@ -70,17 +69,20 @@ let infop_file () =
 (* -------------------------------------------------------------------------- *)
 
 let config_key fmt key value =
-  Format.fprintf fmt "let () = Wcaml.Config.%s := %S@\n" key !value
+  Format.fprintf fmt "let () = Wcaml.Config.%s := %S@\n" key value
 
 let config_file () =
   Format.eprintf "[WCaml] %s@." !config ;
   let out = open_out !config in
   let fmt = Format.formatter_of_out_channel out in
+  let url = !app ^ "." ^ !domain in
+  let file = reverse !domain 0 ^ "." ^ !app in
   begin
-    config_key fmt "app" app ;
-    config_key fmt "name" name ;
-    config_key fmt "version" version ;
-    config_key fmt "domain" domain ;
+    config_key fmt "app" !app ;
+    config_key fmt "name" !name ;
+    config_key fmt "version" !version ;
+    config_key fmt "app_url" url ;
+    config_key fmt "app_file" file ;
     Format.pp_print_flush fmt () ;
     close_out out ;
   end
