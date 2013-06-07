@@ -127,3 +127,44 @@ value wcaml_nsview_debug(value vitem)
   [[item window] visualizeConstraints:[h arrayByAddingObjectsFromArray:v]];
 }
 
+// --------------------------------------------------------------------------
+// --- NSSplit View                                                       ---
+// --------------------------------------------------------------------------
+
+value wcaml_nssplit_create(value vdir)
+{
+  NSSplitView *theView = [[NSSplitView alloc] init];
+  switch(Int_val(vdir)) {
+  case 1: [theView setVertical:YES]; break;
+  case 2: [theView setVertical:NO]; break;
+  }
+  [theView setDividerStyle:NSSplitViewDividerStyleThin];
+  return (value) theView ;
+}
+
+value wcaml_nssplit_pack(value vsplit,value vpane)
+{
+  NSSplitView *split = ID(NSSplitView,vsplit);
+  NSView *view = ID(NSView,vpane);
+  [split addSubview:view];
+  return Val_unit;
+}
+
+value wcaml_nssplit_side(value vsplit,value vpane)
+{
+  NSSplitView *split = ID(NSSplitView,vsplit);
+  NSView *view = ID(NSView,vpane);
+  [split addSubview:view];
+  [split setHoldingPriority:NSLayoutPriorityDragThatCannotResizeWindow 
+	  forSubviewAtIndex:0];
+  return Val_unit;
+}
+
+value wcaml_nssplit_autosave(value vsplit,value vkey)
+{
+  NSSplitView *theView = ID(NSSplitView,vsplit);
+  NSString *theKey = ID(NSString,vkey);
+  [theView setAutoresizesSubviews:NO];
+  [theView setAutosaveName:theKey];
+  return Val_unit;
+}

@@ -8,6 +8,10 @@ open Port
 open Portcontrol
 open NSView
 
+(* -------------------------------------------------------------------------- *)
+(* --- Forms Layout                                                       --- *)
+(* -------------------------------------------------------------------------- *)
+
 let dHsep =  8 (* Horizontal Separation *)
 let dVsep =  6 (* Vertical Separation *)
 let dBorder = 12 (* Section Separation *)
@@ -135,3 +139,51 @@ object(self)
 	  ypadding <- dVsep
 
 end
+
+(* -------------------------------------------------------------------------- *)
+(* --- Split Panes                                                        --- *)
+(* -------------------------------------------------------------------------- *)
+
+module NSSplit =
+struct
+  type t
+  let as_view : t -> NSView.t = Obj.magic
+  let kHsplit = 1
+  let kVsplit = 2
+  external create : int -> t = "wcaml_nssplit_create"
+  external pack : t -> NSView.t -> unit = "wcaml_nssplit_pack"
+  external side : t -> NSView.t -> unit = "wcaml_nssplit_side"
+  external autosave : t -> NSString.t -> unit = "wcaml_nssplit_autosave"
+end
+
+class split kdir id side (a:Widget.pane) (b:Widget.pane) =
+  let split = NSSplit.create kdir in
+object
+  inherit NSView.pane (NSSplit.as_view split)
+  initializer
+    begin
+      if side then
+	NSSplit.side split (NSView.get a)
+      else
+	NSSplit.pack split (NSView.get a) ;
+      NSSplit.pack split (NSView.get b) ;
+      NSSplit.autosave split (NSString.of_string id) ;
+    end
+end
+
+class sidebar ~id ~side ~pane =
+object
+  inherit split NSSplit.kHsplit id true side pane
+end
+
+class hsplit ~id ~left ~right = 
+object
+  inherit split NSSplit.kHsplit id false left right
+end
+
+class vsplit ~id ~top ~bottom = 
+object
+  inherit split NSSplit.kVsplit id false top bottom
+end
+
+(* -------------------------------------------------------------------------- *)

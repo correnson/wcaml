@@ -100,3 +100,70 @@ object(self)
     top <- succ top ; separated <- false
 
 end
+
+(* -------------------------------------------------------------------------- *)
+(* --- Split Panes                                                        --- *)
+(* -------------------------------------------------------------------------- *)
+
+class sidebar ~id ~side ~pane =
+  let paned = GPack.paned `HORIZONTAL () in
+  let width = User.int ~id ~default:(-1) in
+object(self)
+  inherit Port.pane paned
+
+  method private load () =
+    let a = paned#min_position in
+    let b = paned#max_position in
+    let p = a + width#get in
+    if p <= b then paned#set_position p
+	
+  method private save () = width#set paned#position
+    
+  initializer 
+    begin
+      paned#pack1 ~resize:false (Port.get_widget side) ;
+      paned#pack2 ~resize:true (Port.get_widget pane) ;
+      ignore (paned#misc#connect#realize ~callback:self#load) ;
+      User.on_save self#save ;
+    end
+end
+
+class split dir id a b =
+  let paned = GPack.paned dir () in
+  let ratio = User.float ~id ~default:(-1.0) in
+object(self)
+  inherit Port.pane paned
+
+  method private load () =
+    let r = ratio#get in
+    if 0.0 <= r && r <= 1.0 then 
+      let a = paned#min_position in
+      let b = paned#max_position in
+      let ofs = int_of_float (float (b-a) *. r) in
+      paned#set_position (a+ofs)
+	
+  method private save () =
+    let a = paned#min_position in
+    let b = paned#max_position in
+    let p = paned#position in
+    let r = float (p-a) /. float (b-a) in
+    ratio#set r
+    
+  initializer 
+    begin
+      paned#pack1 ~resize:true (Port.get_widget a) ;
+      paned#pack2 ~resize:true (Port.get_widget b) ;
+      ignore (paned#misc#connect#realize ~callback:self#load) ;
+      User.on_save self#save ;
+    end
+end
+
+class hsplit ~id ~left ~right = 
+object
+  inherit split `HORIZONTAL id left right
+end
+
+class vsplit ~id ~top ~bottom = 
+object
+  inherit split `VERTICAL id top bottom
+end

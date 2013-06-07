@@ -28,3 +28,22 @@ object
   method add_vbox : ?label:string -> Widget.widget list -> unit
   method add_pane : ?label:string -> Widget.pane -> unit
 end
+
+(** An horizontal split pane tuned 
+    for a (left) side pane and a (right) main content. 
+    The identifier is used for storing the user's preferred size.
+*)
+class sidebar : id:string -> side:Widget.pane -> pane:Widget.pane -> Widget.pane
+
+(** Horizontal split pane. 
+    The identifier is used for storing the user's preferred ratio.
+*)
+class hsplit : id:string ->
+  left:Widget.pane -> right:Widget.pane -> Widget.pane
+
+(** Vertical split pane. 
+    The identifier is used for storing the user's preferred ratio.
+*)
+class vsplit : id:string ->
+  top:Widget.pane -> bottom:Widget.pane -> Widget.pane
+
