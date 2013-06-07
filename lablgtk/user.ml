@@ -26,7 +26,15 @@ let home () =
   let dir = 
     try Sys.getenv "HOME"
     with Not_found -> "." 
-  in Printf.sprintf "%s/.%s.%s.rc" dir !Config.app !Config.domain
+  in Printf.sprintf "%s/.%s.rc" dir !Config.app_file
+
+let sig_load = new Event.signal
+let sig_save = new Event.signal
+let sig_dump = new Event.signal
+
+let on_load = sig_load#connect
+let on_save = sig_save#connect
+let on_dump = sig_dump#connect
 
 let load () =
   Userfile.parse 
@@ -34,16 +42,19 @@ let load () =
     (home ())
 
 let save () =
-  Userfile.dump
-    (fun f -> IDS.iter f !prefs)
+  sig_save#fire () ;
+  sig_dump#fire () ;
+  Userfile.dump 
+    (fun f -> IDS.iter f !prefs) 
     (home ())
-
+    
 let () = Main.on_init load
+let () = Main.on_main sig_load#fire
 let () = Main.on_quit save
 
 let rec emap f = function
   | [] -> []
-  | e::es -> 
+  | e::es ->
       try let r = f e in r :: emap f es
       with Invalid_argument _ -> emap f es
 
@@ -67,13 +78,15 @@ object(self)
     with Not_found | Invalid_argument _ -> ()
 
   method private save () =
-    try prefs := IDS.add id [encode self#get] !prefs
+    try
+      let r = encode self#get in
+      prefs := IDS.add id [r] !prefs
     with Invalid_argument _ -> ()
 
   initializer
     begin
       self#load () ;
-      self#on_event self#save ;
+      on_dump self#save ;
     end
 
 end
@@ -102,7 +115,7 @@ object(self)
   initializer
     begin
       self#load () ;
-      self#on_event self#save ;
+      on_dump self#save ;
     end
 
 end

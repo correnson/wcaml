@@ -17,6 +17,13 @@ external get_user_nsarray  : NSString.t -> NSString.t NSArray.t
 external set_user_nsarray  : NSString.t -> NSString.t NSArray.t -> unit
   = "wcaml_set_user_object"
 
+let save = new Event.signal
+let load = new Event.signal
+let on_save = save#connect
+let on_load = load#connect
+let () = Main.on_main load#fire
+let () = Main.on_quit save#fire
+
 (* -------------------------------------------------------------------------- *)
 (* --- Wrapper                                                            --- *)
 (* -------------------------------------------------------------------------- *)

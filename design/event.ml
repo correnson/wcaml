@@ -41,7 +41,7 @@ object(self)
   val mutable current : 'a = default
   inherit ['a] signal as s
   method get = current
-  method set x = s#fire x
+  method set x = self#fire x
   method! fire x = current <- x ; s#fire x
   method send_to receiver () : unit = receiver current
   method mirror_to : 'b. ((<fire : 'a action ; ..> as 'b) -> unit) =
