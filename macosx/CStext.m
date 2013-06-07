@@ -36,7 +36,9 @@ value wcaml_nstextview_scroll(value vtext)
 value wcaml_nstextview_text_content(value vtext)
 {
   NSTextView *textView = ID(NSTextView,vtext);
-  [textView setFont:[NSFont fontWithName:@"Cambria" size:10.0]];
+  NSFont *font = [NSFont fontWithName:@"Cambria" size:12.0];
+  if (font) [textView setFont:font];
+  else NSLog(@"Cambria 12pt not found");
   [[textView textContainer] setWidthTracksTextView:YES];
   return Val_unit;
 }
@@ -44,7 +46,9 @@ value wcaml_nstextview_text_content(value vtext)
 value wcaml_nstextview_code_content(value vtext)
 {
   NSTextView *textView = ID(NSTextView,vtext);
-  [textView setFont:[NSFont fontWithName:@"Monospace" size:10.0]];
+  NSFont *font = [NSFont fontWithName:@"Courier" size:12.0];
+  if (font) [textView setFont:font];
+  else NSLog(@"Courier 12pt not found");
   [[textView textContainer] setContainerSize:NSMakeSize(FLT_MAX, FLT_MAX)];
   [[textView textContainer] setWidthTracksTextView:NO];
   return Val_unit;
