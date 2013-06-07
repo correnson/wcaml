@@ -75,13 +75,7 @@ static void wcaml_window_menu(NSMenu *menu)
 	   keyEquivalent:@""];
 }
 
-// --------------------------------------------------------------------------
-// --- CSDelegate Implementation
-// --------------------------------------------------------------------------
-
-@implementation CSAppDelegate
-
--(void) applicationWillFinishLaunching:(NSNotification *)aNotification 
+void wcaml_main_menu(void)
 {
   NSMenu *menubar ;
   NSMenuItem *item ;
@@ -107,6 +101,12 @@ static void wcaml_window_menu(NSMenu *menu)
 
   //---- That's It ------------
 }
+
+// --------------------------------------------------------------------------
+// --- CSDelegate Implementation
+// --------------------------------------------------------------------------
+
+@implementation CSAppDelegate
 
 @end
 

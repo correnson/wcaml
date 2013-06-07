@@ -13,7 +13,7 @@ value wcaml_init(value unit)
   [NSApplication sharedApplication];
   CSAppDelegate *delegate = [[CSAppDelegate alloc] init];
   [NSApp setDelegate:delegate];
-  [NSApp finishLaunching];
+  wcaml_main_menu();
   return Val_unit ;
 }
 
