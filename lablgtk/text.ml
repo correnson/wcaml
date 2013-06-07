@@ -63,7 +63,10 @@ let apply g = function
 (* -------------------------------------------------------------------------- *)
   
 class textpane ~content ?(editable=true) () =
-  let scroll = GBin.scrolled_window () in
+  let scroll = GBin.scrolled_window 
+    ~hpolicy:`AUTOMATIC
+    ~vpolicy:`AUTOMATIC
+    () in
   let buffer = GText.buffer () in
   let view = GText.view ~buffer
     ~editable ~cursor_visible:editable
