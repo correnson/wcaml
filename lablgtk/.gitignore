@@ -10,4 +10,6 @@ user.mli
 widget.mli
 control.mli
 text.mli
+model.mli
+table.mli
 window.mli
