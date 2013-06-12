@@ -15,29 +15,6 @@ type 'a printf = ('a,Format.formatter,unit) format -> 'a
 type content = [ `Text | `Code ]
 
 (*
-let fg = function
-  | `Black -> "Black"
-  | `Grey  -> "Silver"
-  | `Dark  -> "Gray"
-  | `White -> "White"
-  | `Green -> "Green"
-  | `Orange -> "Orange"
-  | `Red -> "Red"
-  | `Blue -> "Blue"
-  | `Yellow -> "Gold"
-  | `Violet -> "BlueViolet"
-
-let bg = function
-  | `Black -> "Dark"
-  | `Grey  -> "LightGrey"
-  | `Dark  -> "DarkGray"
-  | `White -> "White"
-  | `Green -> "LightGreen"
-  | `Orange -> "SandyBrown"
-  | `Red -> "Red"
-  | `Blue -> "SkyBlue"
-  | `Yellow -> "Khaki"
-  | `Violet -> "MediumOrchid"
 
 let gstyle () = { gtext = [] ; gline = [] ; gfg = [] ; gbg = [] }
 

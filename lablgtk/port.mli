@@ -14,5 +14,10 @@ class control : ?tooltip:string -> layout -> #GObj.widget -> Widget.control
 val descr_font : #GObj.widget -> unit
 val title_font : #GObj.widget -> unit
 
+val fg : Widget.color -> string
+val bg : Widget.color -> string
+val pixbuf : string -> GdkPixbuf.pixbuf option
+
 val get_widget : #Property.bundle -> GObj.widget
 val get_layout : #Property.bundle -> layout
+

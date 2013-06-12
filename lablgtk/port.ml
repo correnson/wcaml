@@ -54,5 +54,40 @@ let descr_font w =
 let title_font w = 
   set_font (fun f -> Pango.Font.set_weight f `BOLD) w
 
+let fg = function
+  | `Black -> "Black"
+  | `Grey  -> "Silver"
+  | `Dark  -> "Gray"
+  | `White -> "White"
+  | `Green -> "Green"
+  | `Orange -> "Orange"
+  | `Red -> "Red"
+  | `Blue -> "Blue"
+  | `Yellow -> "Gold"
+  | `Violet -> "BlueViolet"
+
+let bg = function
+  | `Black -> "Dark"
+  | `Grey  -> "LightGrey"
+  | `Dark  -> "DarkGray"
+  | `White -> "White"
+  | `Green -> "LightGreen"
+  | `Orange -> "SandyBrown"
+  | `Red -> "Red"
+  | `Blue -> "SkyBlue"
+  | `Yellow -> "Khaki"
+  | `Violet -> "MediumOrchid"
+
 let get_widget (w : #Property.bundle) = w#get_prop widget
 let get_layout (w : #Property.bundle) = w#get_prop layout
+
+let cache = Hashtbl.create 31
+let pixbuf f =
+  try Hashtbl.find cache f
+  with Not_found ->
+    try
+      let pix = Some (GdkPixbuf.from_file f) in
+      Hashtbl.add cache f pix ; pix
+    with Glib.GError msg -> 
+      Format.eprintf "Image %S: %s@." f msg ;
+      None
