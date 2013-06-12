@@ -45,15 +45,30 @@ end
 
 (** Colors *)
 
-type color = [
-| `Black
-| `Grey
-| `Dark
-| `White
-| `Green
-| `Orange
-| `Red
-| `Blue
-| `Yellow
-| `Violet
-]
+type color = 
+    [
+    | `Black
+    | `Grey
+    | `Dark
+    | `White
+    | `Green
+    | `Orange
+    | `Red
+    | `Blue
+    | `Yellow
+    | `Violet
+    ]
+
+(** Icons *)
+
+type icon = 
+    [
+    | `Warning
+    | `Error
+    | `Execute
+    | `Yes
+    | `No
+    | `None
+    | `Trash
+    | `Image of string
+    ]
