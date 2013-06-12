@@ -11,4 +11,6 @@ widget.mli
 window.mli
 control.mli
 text.mli
+model.mli
+table.mli
 layout.mli
