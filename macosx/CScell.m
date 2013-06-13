@@ -2,7 +2,7 @@
 /* --- NSCell Port                                                       --- */
 /* -------------------------------------------------------------------------- */
 
-#import "CScell.h"
+#import "CS.h"
 
 value wcaml_nscell_set_enabled(value vcell,value venabled)
 {

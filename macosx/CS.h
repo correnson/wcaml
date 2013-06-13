@@ -21,4 +21,27 @@
 #define BOOL(v) ( (v) == Val_true ? YES : NO )
 #define COND(v) ( (v) == Val_true )
 #define VBOOL(v) ((v) ? Val_true : Val_false )
-//------------------------------------
+
+// --------------------------------------------------------------------------
+// --- Delegates
+// --------------------------------------------------------------------------
+
+// --- CSapp.m
+@interface CSAppDelegate : NSObject ;
++ (void)appMainMenu;
+@end
+
+// --- CSwindow.m
+@interface CSWinDelegate : NSObject < NSWindowDelegate > ;
+- (void)windowDidBecomeMain:(NSNotification *)notification;
+- (void)windowDidResignMain:(NSNotification *)notification;
+- (BOOL)windowShouldClose:(id)sender;
+@end
+
+// --- CSsignal.m
+
+@interface CSSignal : NSObject ;
+- (void)fireSignal:(id)sender;
+@end
+
+// --------------------------------------------------------------------------

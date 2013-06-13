@@ -2,19 +2,17 @@
 /* --- NSControl Signal Callback                                          --- */
 /* -------------------------------------------------------------------------- */
 
-#import "CScontrol.h"
+#import "CS.h"
 
 @implementation CSSignal
-- (void)fireSignal:(id)sender { wcaml_callback_signal(sender); }
-@end
-
-void wcaml_callback_signal(id sender)
-{
+- (void)fireSignal:(id)sender 
+{ 
   static value *service = NULL;
   if (!service) service = caml_named_value("nscontrol_signal");
   if (service) caml_callback2( *service , (value) sender , Val_unit );
   return;
 }
+@end
 
 CSSignal *wcaml_target_signal(void)
 {

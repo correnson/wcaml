@@ -168,3 +168,21 @@ value wcaml_nssplit_autosave(value vsplit,value vkey)
   [theView setAutosaveName:theKey];
   return Val_unit;
 }
+
+// --------------------------------------------------------------------------
+// --- Scroll Views                                                       ---
+// --------------------------------------------------------------------------
+
+value wcaml_nsview_scroll(value vpane)
+{
+  NSTextView *theView = ID(NSTextView,vpane);
+  NSScrollView *scrollView = [[NSScrollView alloc] init];
+  [scrollView setBorderType:NSNoBorder];
+  [scrollView setHasVerticalScroller:YES];
+  [scrollView setHasHorizontalScroller:YES];
+  [scrollView setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
+  [scrollView setDocumentView:theView];
+  return (value) (NSView *) scrollView;
+}
+
+// --------------------------------------------------------------------------

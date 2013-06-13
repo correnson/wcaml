@@ -2,7 +2,7 @@
 /* --- Text Views Port                                                    --- */
 /* -------------------------------------------------------------------------- */
 
-#import "CStext.h"
+#import "CS.h"
 
 value wcaml_nstextview_create(value vunit)
 {
@@ -19,18 +19,6 @@ value wcaml_nstextview_create(value vunit)
   [[textView textContainer] setContainerSize:NSMakeSize(FLT_MAX, FLT_MAX)];
   [[textView textContainer] setHeightTracksTextView:NO];
   return (value) textView;
-}
-
-value wcaml_nstextview_scroll(value vtext)
-{
-  NSTextView *textView = ID(NSTextView,vtext);
-  NSScrollView *scrollView = [[NSScrollView alloc] init];
-  [scrollView setBorderType:NSNoBorder];
-  [scrollView setHasVerticalScroller:YES];
-  [scrollView setHasHorizontalScroller:YES];
-  [scrollView setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
-  [scrollView setDocumentView:textView];
-  return (value) (NSView *) scrollView;
 }
 
 value wcaml_nstextview_text_content(value vtext)

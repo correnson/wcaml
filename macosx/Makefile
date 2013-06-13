@@ -26,9 +26,9 @@ OPTCMX= -for-pack Wcaml
 
 WCAML_SRC= \
 	main port portcontrol \
-	user window control text layout
+	user window control text table layout
 
-WCAML_TYPES= widget.cmi
+WCAML_TYPES= widget.cmi model.cmi
 WCAML_CMI=$(addsuffix .cmi, $(WCAML_LIB) $(WCAML_SRC))
 WCAML_CMX=$(addsuffix .cmx, $(WCAML_LIB) $(WCAML_SRC))
 
@@ -36,7 +36,7 @@ WCAML_CMX=$(addsuffix .cmx, $(WCAML_LIB) $(WCAML_SRC))
 
 OBJC= \
 	CSapp.o CSmain.o CSdata.o CSuser.o CSwindow.o \
-	CScell.o CSview.o CScontrol.o CStext.o
+	CScell.o CSview.o CScontrol.o CStext.o CStable.o
 
 # --------------------------------------------------------------------------
 
@@ -63,13 +63,6 @@ uninstall:
 # --------------------------------------------------------------------------
 include ../design/MakeOcaml
 # --------------------------------------------------------------------------
-
-CSmain.o: CSmain.h CSapp.h
-CSuser.o: CSuser.h CSdata.h
-CSwindow.o: CSwindow.h
-CScell.o: CScell.h
-CSview.o: CSview.h
-CScontrol.o: CScontrol.h
 
 .m.o: CS.h
 	gcc -c -I$(OCAMLLIB) -O2 $<

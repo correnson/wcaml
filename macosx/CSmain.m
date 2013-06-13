@@ -1,5 +1,4 @@
-#import "CSapp.h"
-#import "CSmain.h"
+#import "CS.h"
 
 // ---------------------------------------------------------------------------
 // --- Main Loop
@@ -7,13 +6,14 @@
 
 static NSAutoreleasePool *wcaml_pool = nil ;
 
+
 value wcaml_init(value unit)
 {
   wcaml_pool = [[NSAutoreleasePool alloc] init];
   [NSApplication sharedApplication];
   CSAppDelegate *delegate = [[CSAppDelegate alloc] init];
   [NSApp setDelegate:delegate];
-  wcaml_main_menu();
+  [CSAppDelegate appMainMenu];
   return Val_unit ;
 }
 
