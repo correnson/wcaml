@@ -64,7 +64,16 @@ uninstall:
 include ../design/MakeOcaml
 # --------------------------------------------------------------------------
 
-.m.o: CS.h
+# --- Library
+$(OBJC): CS.h
+
+# --- Delegates
+CSapp.o: CSapp.h
+CSwindow.o: CSwindow.h
+CScontrol.o: CScontrol.h
+
+# --- Objective-C
+.m.o:
 	gcc -c -I$(OCAMLLIB) -O2 $<
 
 # --------------------------------------------------------------------------

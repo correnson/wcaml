@@ -7,6 +7,7 @@ sig
   type t
   type layout
   val create : unit -> t
+  val scroll : t -> t
   val set_tooltip : t -> NSString.t -> unit
   val add_subview : t -> t -> unit
   val has_baseline : t -> bool

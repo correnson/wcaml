@@ -6,7 +6,7 @@
 
 value wcaml_nscell_set_enabled(value vcell,value venabled)
 {
-  [ID(NSCell,vcell) setEnabled:VBOOL(venabled)];
+  [ID(NSCell,vcell) setEnabled:BOOL(venabled)];
   return Val_unit ;
 }
 

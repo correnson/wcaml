@@ -28,7 +28,7 @@ value wcaml_nsview_add_subview(value vbox,value vitem)
 value wcaml_nsview_has_baseline(value vitem)
 {
   CGFloat baseline = [ID(NSView,vitem) baselineOffsetFromBottom];
-  return VBOOL( baseline );
+  return Val_BOOL( baseline );
 }
 
 value wcaml_nsview_set_layout(value vbox,

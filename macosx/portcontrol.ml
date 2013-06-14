@@ -19,6 +19,7 @@ struct
   type t
   type layout = int
   external create : unit -> t = "wcaml_nsview_create"
+  external scroll : t -> t = "wcaml_nsview_scroll"
   external set_tooltip : t -> NSString.t -> unit = "wcaml_nsview_set_tooltip"
   external add_subview : t -> t -> unit = "wcaml_nsview_add_subview"
   external has_baseline : t -> bool = "wcaml_nsview_has_baseline"

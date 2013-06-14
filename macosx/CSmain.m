@@ -6,7 +6,6 @@
 
 static NSAutoreleasePool *wcaml_pool = nil ;
 
-
 value wcaml_init(value unit)
 {
   wcaml_pool = [[NSAutoreleasePool alloc] init];

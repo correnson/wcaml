@@ -2,7 +2,7 @@
 // --- Window Port                                                        ---
 // --------------------------------------------------------------------------
 
-#import "CSwindow.h"
+#import "CS.h"
 
 static NSPoint cascading ;
 
@@ -21,7 +21,7 @@ void wcaml_callback_nswindow_focus(NSWindow *window,BOOL focus)
 {
   static value *service = NULL ;
   if (!service) service = caml_named_value("nswindow_focus");
-  if (service) caml_callback2( *service , (value) window , VBOOL(focus) );
+  if (service) caml_callback2( *service , (value) window , Val_BOOL(focus) );
   return;
 }
 

@@ -18,10 +18,10 @@ type content = [ `Text | `Code ]
 module NSTextView =
 struct
   type t
+  let as_view : t -> NSView.t = Obj.magic
   external create : unit -> t = "wcaml_nstextview_create"
   external text_content : t -> unit = "wcaml_nstextview_text_content"
   external code_content : t -> unit = "wcaml_nstextview_code_content"
-  external scroll : t -> NSView.t = "wcaml_nstextview_scroll"
   external set_editable : t -> bool -> unit = "wcaml_nstextview_set_editable"
   external length : t -> int = "wcaml_nstextview_length"
   external clear : t -> unit = "wcaml_nstextview_clear"
@@ -35,7 +35,7 @@ end
 
 class textpane ~content ?(editable=false) () =
   let text = NSTextView.create () in
-  let scroll = NSTextView.scroll text in
+  let scroll = NSView.scroll (NSTextView.as_view text) in
 object(self)
   inherit NSView.pane scroll
 
