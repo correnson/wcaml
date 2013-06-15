@@ -74,3 +74,9 @@ sig
   val create : unit -> t
   val set_attribute : t -> attr -> unit
 end
+
+module NSImage :
+sig
+  type t
+  val icon : Widget.icon -> t
+end

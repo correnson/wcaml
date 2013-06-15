@@ -238,15 +238,15 @@ let tags_of_pixbuf resources f =
   match Port.pixbuf path with None -> [] | Some p -> [`PIXBUF p]
 
 let icon (icn:Widget.icon) = match icn with
-  | `NoIcon       -> []
-  | `Warning      -> [`STOCK_SIZE `MENU;`STOCK_ID "gtk-dialog-warning"]
-  | `Execute      -> [`STOCK_ID "gtk-execute"]
-  | `Trash        -> [`STOCK_ID "gtk-delete"]
-  | `State_green  -> tags_of_pixbuf Config.wcaml_resources "status_green.png"
-  | `State_orange -> tags_of_pixbuf Config.wcaml_resources "status_orange.png"
-  | `State_red    -> tags_of_pixbuf Config.wcaml_resources "status_red.png"
-  | `State_none   -> tags_of_pixbuf Config.wcaml_resources "status_none.png"
-  | `Image f      -> tags_of_pixbuf Config.app_resources f
+  | `NoIcon        -> []
+  | `Warning       -> [`STOCK_SIZE `MENU;`STOCK_ID "gtk-dialog-warning"]
+  | `Execute       -> [`STOCK_ID "gtk-execute"]
+  | `Trash         -> [`STOCK_ID "gtk-delete"]
+  | `Status_green  -> tags_of_pixbuf Config.wcaml_resources "status_green.png"
+  | `Status_orange -> tags_of_pixbuf Config.wcaml_resources "status_orange.png"
+  | `Status_red    -> tags_of_pixbuf Config.wcaml_resources "status_red.png"
+  | `Status_none   -> tags_of_pixbuf Config.wcaml_resources "status_none.png"
+  | `Image f       -> tags_of_pixbuf Config.app_resources f
 
 (* -------------------------------------------------------------------------- *)
 (* --- Icon Column                                                        --- *)

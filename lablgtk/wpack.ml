@@ -74,19 +74,24 @@ let icons = [
   "status_none.png" ;
 ]
 
+let command cmd = 
+  let e = Sys.command cmd in
+  if e <> 0 then
+    ( Format.eprintf "Error[%d]: %S@." e cmd ; exit e )
+
 let make_resources () =
   begin
     Format.eprintf "[WCaml] Resources '%s'@." !resources ;
-    Sys.command (Printf.sprintf "mkdir -p %s" !resources) ;
+    command (Printf.sprintf "mkdir -p %s" !resources) ;
     List.iter
-      (fun img -> Sys.command 
+      (fun img -> command
 	 (Printf.sprintf "cp $(ocamlfind query wcaml)/share/%s %s/%s"
 	    img !resources img
 	 )) icons ;
     List.iter
       (fun src -> 
 	 let tgt = Filename.basename src in
-	 Sys.command (Printf.sprintf "cp %s %s/%s" src !resources tgt)
+	 command (Printf.sprintf "cp %s %s/%s" src !resources tgt)
       ) !files ;
   end
 

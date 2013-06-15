@@ -129,3 +129,28 @@ struct
     | `Editable -> 20
   let set_attribute w a = set_attribute w (attr a)
 end
+
+module NSImage =
+struct
+  type t
+  external system : int -> t = "wcaml_nsimage_system"
+  external image : NSString.t -> t = "wcaml_nsimage_create"
+  let cache = Hashtbl.create 32
+  let icon (icn:Widget.icon) = match icn with
+    | `NoIcon        -> Port.nil
+    | `Status_none   -> system 10
+    | `Status_green  -> system 11
+    | `Status_orange -> system 12
+    | `Status_red    -> system 13
+    | `Warning       -> system 21
+    | `Execute       -> system 22
+    | `Trash         -> system 23
+    | `Image f -> 
+	try Hashtbl.find cache f
+	with Not_found -> 
+	  if Sys.file_exists f then
+	    let img = image (NSString.of_string f) in
+	    Hashtbl.add cache f img ; img
+	  else
+	    failwith (Printf.sprintf "Icon file %S not found." f)
+end
