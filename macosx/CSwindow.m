@@ -3,6 +3,7 @@
 // --------------------------------------------------------------------------
 
 #import "CS.h"
+#import "CSwindow.h"
 
 static NSPoint cascading ;
 

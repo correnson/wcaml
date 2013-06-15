@@ -3,6 +3,7 @@
 /* -------------------------------------------------------------------------- */
 
 #import "CS.h"
+#import "CScontrol.h"
 
 @implementation CSSignal
 static CSSignal *target = nil;
@@ -119,3 +120,32 @@ value wcaml_nstextfield_set_attribute(value vtextfield,value vattr)
   }
   return Val_unit;
 }
+
+/* -------------------------------------------------------------------------- */
+/* --- NSImage                                                            --- */
+/* -------------------------------------------------------------------------- */
+
+value wcaml_nsimage_system(value vcode)
+{
+  NSString *ref = nil;
+  switch(Int_val(vcode)) {
+  case 10: ref = NSImageNameStatusNone; break;
+  case 11: ref = NSImageNameStatusAvailable; break;
+  case 12: ref = NSImageNameStatusPartiallyAvailable; break;
+  case 13: ref = NSImageNameStatusUnavailable; break;
+  case 21: ref = NSImageNameCaution; break;
+  case 22: ref = NSImageNameActionTemplate; break;
+  case 23: ref = NSImageNameTrashEmpty; break;
+  }
+  NSImage *img = ref ? [NSImage imageNamed:ref] : nil ;
+  return (value) img;
+}
+
+value wcaml_nsimage_create(value vfile)
+{
+  NSString *file = ID(NSString,vfile);
+  NSImage *img = [[NSImage alloc] initWithContentsOfFile:file];
+  return (value) img;
+}
+
+/* -------------------------------------------------------------------------- */

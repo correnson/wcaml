@@ -29,15 +29,23 @@ struct
 end
 
 (* -------------------------------------------------------------------------- *)
-(* --- Delegate                                                           --- *)
+(* --- Services                                                           --- *)
 (* -------------------------------------------------------------------------- *)
 
-module ListSize = Port.Service
+module Items = Port.Service
   (struct
-     let name = "nstable_list_size"
+     let name = "nstable_items"
      type nsobject = NSTable.t
      type signature = unit -> int
      let default () = 0
+   end)
+
+module CellKind = Port.Service
+  (struct
+     let name = "nstable_cell"
+     type nsobject = NSTableColumn.t
+     type signature = int
+     let default = 0
    end)
 
 (* -------------------------------------------------------------------------- *)
@@ -76,10 +84,9 @@ class ['a] list ~id ~(model : 'a Model.list) ?(headers=true) () =
   let wtable = NSTable.create (NSString.of_string id) in
 object
   inherit ['a] gcolumns wtable headers 
-  initializer ignore headers
   initializer 
     begin
-      ListSize.bind wtable (fun () -> model#size) ;
+      Items.bind wtable (fun () -> model#size) ;
     end
 end
 
@@ -87,7 +94,6 @@ class ['a] tree ~id ~(model : 'a Model.tree) ?(headers=true) () =
   let wtable = NSTable.create (NSString.of_string id) in
 object
   inherit ['a] gcolumns wtable headers
-  initializer ignore headers
   initializer ignore model
 end
 

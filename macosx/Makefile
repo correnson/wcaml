@@ -69,8 +69,10 @@ $(OBJC): CS.h
 
 # --- Delegates
 CSapp.o: CSapp.h
+CSmain.o: CSapp.h
 CSwindow.o: CSwindow.h
 CScontrol.o: CScontrol.h
+CStable.o: CStable.h
 
 # --- Objective-C
 .m.o:
