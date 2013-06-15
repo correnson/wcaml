@@ -61,14 +61,15 @@ type color =
 
 (** Icons *)
 
-type icon = 
+type icon =
     [
+    | `NoIcon
     | `Warning
-    | `Error
     | `Execute
-    | `Yes
-    | `No
-    | `None
+    | `State_green
+    | `state_orange
+    | `State_red
+    | `State_none
     | `Trash
     | `Image of string
     ]
