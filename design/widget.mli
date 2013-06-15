@@ -67,9 +67,9 @@ type icon =
     | `Warning
     | `Execute
     | `State_green
-    | `state_orange
+    | `State_orange
     | `State_red
     | `State_none
     | `Trash
-    | `Image of string
+    | `Image of string (** In [Config.app_resources] directory. *)
     ]

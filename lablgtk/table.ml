@@ -232,15 +232,21 @@ end
 (* --- Icon Cell                                                          --- *)
 (* -------------------------------------------------------------------------- *)
 
+let cache = Hashtbl.create 32
+let tags_of_pixbuf resources f =  
+  let path = Filename.concat !resources f in
+  match Port.pixbuf path with None -> [] | Some p -> [`PIXBUF p]
+
 let icon (icn:Widget.icon) = match icn with
-  | `Image f -> (match Port.pixbuf f with None -> [] | Some p -> [`PIXBUF p])
-  | `Warning -> [`STOCK_SIZE `MENU;`STOCK_ID "gtk-dialog-warning"]
-  | `Error ->   [`STOCK_SIZE `MENU;`STOCK_ID "gtk-dialog-error"]
-  | `Execute -> [`STOCK_ID "gtk-execute"]
-  | `Yes ->     [`STOCK_ID "gtk-yes"]
-  | `No ->      [`STOCK_ID "gtk-no"]
-  | `None ->    []
-  | `Trash ->   [`STOCK_ID "gtk-delete"]
+  | `NoIcon       -> []
+  | `Warning      -> [`STOCK_SIZE `MENU;`STOCK_ID "gtk-dialog-warning"]
+  | `Execute      -> [`STOCK_ID "gtk-execute"]
+  | `Trash        -> [`STOCK_ID "gtk-delete"]
+  | `State_green  -> tags_of_pixbuf Config.wcaml_resources "status_green.png"
+  | `State_orange -> tags_of_pixbuf Config.wcaml_resources "status_orange.png"
+  | `State_red    -> tags_of_pixbuf Config.wcaml_resources "status_red.png"
+  | `State_none   -> tags_of_pixbuf Config.wcaml_resources "status_none.png"
+  | `Image f      -> tags_of_pixbuf Config.app_resources f
 
 (* -------------------------------------------------------------------------- *)
 (* --- Icon Column                                                        --- *)
@@ -253,7 +259,7 @@ class ['a] gicon_column
   let gcell = GTree.cell_renderer_pixbuf [] in
 object(self)
   inherit ['a] gcolumn gtree gcol model cb id
-  val mutable renderer : 'a -> Widget.icon = fun _ -> `None
+  val mutable renderer : 'a -> Widget.icon = fun _ -> `NoIcon
   method private updated m i =
     let tags = match model#custom_get_iter (m#get_path i) with
       | None -> []

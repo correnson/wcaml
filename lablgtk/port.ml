@@ -85,9 +85,8 @@ let cache = Hashtbl.create 31
 let pixbuf f =
   try Hashtbl.find cache f
   with Not_found ->
-    try
-      let pix = Some (GdkPixbuf.from_file f) in
-      Hashtbl.add cache f pix ; pix
-    with Glib.GError msg -> 
-      Format.eprintf "Image %S: %s@." f msg ;
-      None
+    let pix =
+      try Some (GdkPixbuf.from_file f)
+      with Glib.GError msg -> 
+	Format.eprintf "Image %S: %s@." f msg ; None
+    in Hashtbl.add cache f pix ; pix
