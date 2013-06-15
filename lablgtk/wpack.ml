@@ -7,8 +7,10 @@ let name = ref ""
 let version = ref "0.1"
 let domain = ref "wcaml.org"
 let config = ref ""
+let resources = ref ""
+let files = ref []
 
-let throw p = Format.eprintf "[WCaml] Don't known what to do with '%s'" p
+let add_file f = files := f :: !files
 
 let configure () =
   begin
@@ -20,6 +22,7 @@ let configure () =
 	| _ -> ()
     end ;
     if !config = "" then config := !app ^ "_config.ml" ;
+    if !resources = "" then resources := "/usr/local/share/" ^ !app ;
   end
 
 (* -------------------------------------------------------------------------- *)
@@ -43,7 +46,7 @@ let rec reverse url p =
 let config_key fmt key value =
   Format.fprintf fmt "let () = Wcaml.Config.%s := %S@\n" key value
 
-let config_file () =
+let make_config_file () =
   Format.eprintf "[WCaml] %s@." !config ;
   let out = open_out !config in
   let fmt = Format.formatter_of_out_channel out in
@@ -55,8 +58,36 @@ let config_file () =
     config_key fmt "version" !version ;
     config_key fmt "app_url" url ;
     config_key fmt "app_file" file ;
+    config_key fmt "resources" !resources ;
     Format.pp_print_flush fmt () ;
     close_out out ;
+  end
+
+(* -------------------------------------------------------------------------- *)
+(* --- Resources                                                          --- *)
+(* -------------------------------------------------------------------------- *)
+
+let icons = [
+  "status_red.png" ; 
+  "status_green.png" ; 
+  "status_orange.png" ; 
+  "status_none.png" ;
+]
+
+let make_resources () =
+  begin
+    Format.eprintf "[WCaml] Resources '%s'@." !resources ;
+    Sys.command (Printf.sprintf "mkdir -p %s" !resources) ;
+    List.iter
+      (fun img -> Sys.command 
+	 (Printf.sprintf "cp $(ocamlfind query wcaml)/share/%s %s/%s"
+	    img !resources img
+	 )) icons ;
+    List.iter
+      (fun src -> 
+	 let tgt = Filename.basename src in
+	 Sys.command (Printf.sprintf "cp %s %s/%s" src !resources tgt)
+      ) !files ;
   end
 
 (* -------------------------------------------------------------------------- *)
@@ -70,10 +101,12 @@ let () =
 	"-a" , Arg.Set_string name , "Application Name ('MyApp')" ;
 	"-e" , Arg.Set_string app , "Application Executable ('myapp')" ;
 	"-v" , Arg.Set_string version , "Application Version ('0.1')" ;
-	"-d" , Arg.Set_string domain , "Application Domain ('wcaml.org')" ;
+	"-u" , Arg.Set_string domain , "Application URL-Domain ('wcaml.org')" ;
 	"-c" , Arg.Set_string config , "Configuration File ('myapp_config.ml')" ;
-      ] throw "wpack [options]" ;
+	"-d" , Arg.Set_string resources , "Resources Directory ('/usr/local/myapp')" ; 
+      ] add_file "wpack [options] files..." ;
     configure () ;
-    config_file () ;
+    make_config_file () ;
+    make_resources () ;
   end
   
