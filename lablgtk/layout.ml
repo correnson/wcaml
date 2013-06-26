@@ -102,6 +102,34 @@ object(self)
 end
 
 (* -------------------------------------------------------------------------- *)
+(* --- Boxes                                                              --- *)
+(* -------------------------------------------------------------------------- *)
+
+class hbox (controls : Widget.widget list) =
+  let box = GPack.hbox ~homogeneous:false () in
+object(self)
+  inherit Port.pane box
+  method private pack (ctrl : Widget.widget) =
+    let layout = Port.get_layout ctrl in
+    let widget = Port.get_widget ctrl in
+    let expand = Port.hexpand layout in
+    box#pack ~expand widget
+  initializer List.iter self#pack controls
+end
+
+class vbox (controls : Widget.widget list) =
+  let box = GPack.vbox ~homogeneous:false () in
+object(self)
+  inherit Port.pane box
+  method private pack (ctrl : Widget.widget) =
+    let layout = Port.get_layout ctrl in
+    let widget = Port.get_widget ctrl in
+    let expand = Port.vexpand layout in
+    box#pack ~expand widget
+  initializer List.iter self#pack controls
+end
+
+(* -------------------------------------------------------------------------- *)
 (* --- Split Panes                                                        --- *)
 (* -------------------------------------------------------------------------- *)
 

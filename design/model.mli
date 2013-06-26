@@ -133,5 +133,9 @@ object
   method scroll : 'a -> unit
   method on_click : 'a callback
   method on_double_click : 'a callback
-
+(*
+  method on_selection : 'a callback
+  method selected : int
+  method iter_selected : ('a -> unit) -> unit
+*)
 end

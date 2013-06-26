@@ -29,6 +29,12 @@ object
   method add_pane : ?label:string -> Widget.pane -> unit
 end
 
+(** Horizontal left-aligned stack. *)
+class hbox : Widget.widget list -> Widget.pane
+
+(** Vertical top-aligned stack. *)
+class vbox : Widget.widget list -> Widget.pane
+
 (** An horizontal split pane tuned 
     for a (left) side pane and a (right) main content. 
     The identifier is used for storing the user's preferred size.
