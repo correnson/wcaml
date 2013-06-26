@@ -43,6 +43,11 @@ object
   method hide : unit action
 end
 
+(** Text Attributes *)
+
+type align = [ `Left | `Right | `Center ]
+type style = [ `Label | `Title | `Descr | `Verbatim ]
+
 (** Colors *)
 
 type color = 
@@ -57,6 +62,7 @@ type color =
     | `Blue
     | `Yellow
     | `Violet
+    | `Default
     ]
 
 (** Icons *)

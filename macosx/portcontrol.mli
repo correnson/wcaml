@@ -67,11 +67,13 @@ sig
   val as_control : t -> NSControl.t
   val as_view : t -> NSView.t
   type attr = [
-  | `Left | `Right | `Center 
-  | `Label | `Title | `Descr
+  | `Left | `Right | `Center (* Widget.align *)
+  | `Label | `Title | `Descr | `Verbatim (* Widget.style *)
   | `Static | `Editable
   ]
   val create : unit -> t
+  val set_text : t -> NSString.t -> unit
+  val get_text : t -> NSString.t
   val set_attribute : t -> attr -> unit
 end
 
@@ -79,4 +81,12 @@ module NSImage :
 sig
   type t
   val icon : Widget.icon -> t
+end
+
+module NSImageView :
+sig
+  type t
+  val as_view : t -> NSView.t
+  val as_control : t -> NSControl.t
+  val set_image : t -> NSImage.t -> unit
 end

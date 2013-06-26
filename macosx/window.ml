@@ -25,17 +25,17 @@ end
 (* --- Callbacks                                                          --- *)
 (* -------------------------------------------------------------------------- *)
 
-module Focus = Service
+module Focus = NSCallback
   (struct
-     let name = "nswindow_focus"
+     let name = "wcaml_nswindow_focus"
      type nsobject = NSWindow.t
      type signature = bool -> unit
      let default _ = ()
    end)
 
-module Close = Service
+module Close = NSCallback
   (struct
-     let name = "nswindow_close"
+     let name = "wcaml_nswindow_close"
      type nsobject = NSWindow.t
      type signature = unit -> unit
      let default () = ()

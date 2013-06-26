@@ -6,13 +6,48 @@
 #import "CStable.h"
 
 // --------------------------------------------------------------------------
-// --- Cell Callbacks
+// --- Table Clicks
+// --------------------------------------------------------------------------
+
+void wcaml_callback_clicked_header( NSTableColumn *column, BOOL double_click )
+{
+  static value *service = NULL;
+  if (!service) service = caml_named_value("wcaml_nstable_header");
+  if (!service) return;
+  caml_callback2( *service , (value) column , Val_BOOL(double_click) );
+}
+
+void wcaml_callback_clicked_cell( NSTableColumn *column, NSInteger row, 
+				  BOOL double_click )
+{
+  static value *service = NULL;
+  if (!service) service = caml_named_value("wcaml_nstable_clicked");
+  if (!service) return;
+  caml_callback3( *service , (value) column , Val_int(row), 
+		 Val_BOOL(double_click) );
+}
+
+void wcaml_nstable_clicked( NSTableView *table , BOOL double_click )
+{
+  NSInteger col = [table clickedColumn]; 
+  if (col<0) return;
+  NSTableColumn *column = [[table tableColumns] objectAtIndex:col];
+  NSInteger row = [table clickedRow];
+  if (row<0) {
+    wcaml_callback_clicked_header(column,double_click);
+  } else {
+    wcaml_callback_clicked_cell(column,row,double_click);
+  }
+}
+
+// --------------------------------------------------------------------------
+// --- Cell Rendering
 // --------------------------------------------------------------------------
 
 NSInteger wcaml_callback_cell(NSTableColumn *tableColumn)
 {
   static value *service = NULL;
-  if (!service) service = caml_named_value("nstable_cell");
+  if (!service) service = caml_named_value("wcaml_nstable_cell");
   if (!service) return 0;
   value result = caml_callback( *service, (value) tableColumn );
   return Int_val(result);
@@ -22,16 +57,18 @@ void wcaml_callback_icon_cell
 (NSTableColumn *tableColumn,NSImageView *cell,NSInteger row)
 {
   static value *service = NULL;
-  if (!service) service = caml_named_value("nstable_icon_cell");
+  if (!service) service = caml_named_value("wcaml_nstable_icon_cell");
   if (!service) return;
-  //--- TODO
+  value result = caml_callback2( *service, (value) tableColumn, Val_int(row) );
+  NSImage *img = ID(NSImage,result);
+  [cell setImage:img];
 }
 
 void wcaml_callback_text_cell
 (NSTableColumn *tableColumn,NSTextField *cell,NSInteger row)
 {
   static value *service = NULL;
-  if (!service) service = caml_named_value("nstable_text_cell");
+  if (!service) service = caml_named_value("wcaml_nstable_text_cell");
   if (!service) return;
   caml_callback3( *service, (value) tableColumn , (value) cell , Val_int(row) );
 }
@@ -40,18 +77,114 @@ void wcaml_callback_itext_cell
 (NSTableColumn *tableColumn,NSTableCellView *cell,NSInteger row)
 {
   static value *service = NULL;
-  if (!service) service = caml_named_value("nstable_itext_cell");
+  if (!service) service = caml_named_value("wcaml_nstable_itext_cell");
   if (!service) return;
-  caml_callback3( *service, (value) tableColumn , (value) cell , Val_int(row) );
+  NSImageView *image = [cell imageView];
+  NSTextField *field = [cell textField];
+  caml_callback4( *service, (value) tableColumn , 
+		  (value) image , (value) field, 
+		  Val_int(row) );
 }
 
 void wcaml_callback_check_cell
 (NSTableColumn *tableColumn,NSButton *cell,NSInteger row)
 {
   static value *service = NULL;
-  if (!service) service = caml_named_value("nstable_check_cell");
+  if (!service) service = caml_named_value("wcaml_nstable_check_cell");
   if (!service) return;
   caml_callback3( *service, (value) tableColumn , (value) cell , Val_int(row) );
+}
+
+// --------------------------------------------------------------------------
+// --- Cell Editing
+// --------------------------------------------------------------------------
+
+void wcaml_nstable_edited(NSTextField *field)
+{
+  static value *service = NULL;
+  if (!service) service = caml_named_value("wcaml_nstable_edited_field");
+  if (!service) return;
+  caml_callback2( *service, (value) [field identifier], (value) field );
+}
+
+void wcaml_nstable_checked(NSButton *field)
+{
+  static value *service = NULL;
+  if (!service) service = caml_named_value("wcaml_nstable_clicked_check");
+  if (!service) return;
+  caml_callback2( *service, (value) [field identifier], (value) field );
+}
+
+// --------------------------------------------------------------------------
+// --- Cell Creation
+// --------------------------------------------------------------------------
+
+NSView *wcaml_nstable_render(NSTableView *tableView,
+			     NSTableColumn* tableColumn,
+			     NSInteger row)
+{
+  NSString *ident = [tableColumn identifier];
+  NSInteger cellKind = wcaml_callback_cell(tableColumn);
+  switch(cellKind) {
+  case 1: // Image Cell
+    {
+      NSImageView *cell = [tableView makeViewWithIdentifier:ident owner:nil] ;
+      if (!cell) {
+	cell = [[[NSImageView alloc] init] autorelease];
+	[cell setIdentifier:ident];
+	[cell setImageFrameStyle:NSImageFrameNone];
+      }
+      wcaml_callback_icon_cell(tableColumn,cell,row);
+      return cell;
+    }
+  case 2: // Text Cell
+    {
+      NSTextField *cell = [tableView makeViewWithIdentifier:ident owner:nil] ;
+      if (!cell) {
+	cell = [[[NSTextField alloc] init] autorelease];
+	[cell setIdentifier:ident];
+	[cell setBordered:NO];
+	[cell setDrawsBackground:NO];
+	[cell setAction:@selector(editedTextField:)];
+	[cell setTarget:[CSTableModel sharedModel]];
+      }
+      wcaml_callback_text_cell(tableColumn,cell,row);
+      return cell;
+    }
+  case 3: // IText Cell
+    {
+      NSTableCellView *cell = [tableView makeViewWithIdentifier:ident owner:nil] ;
+      if (!cell) {
+	cell = [[[NSTableCellView alloc] init] autorelease];
+	NSImageView *image = [[[NSImageView alloc] init] autorelease];
+	NSTextField *field = [[[NSTextField alloc] init] autorelease];
+	[image setImageFrameStyle:NSImageFrameNone];
+	[field setBordered:NO];
+	[field setDrawsBackground:NO];
+	[field setAction:@selector(editedTextField:)];
+	[field setTarget:[CSTableModel sharedModel]];
+	[cell setIdentifier:ident];
+	[cell setTextField:field];
+	[cell setImageView:image];
+      }
+      wcaml_callback_itext_cell(tableColumn,cell,row);
+      return cell;
+    }
+  case 4: // Check Cell
+    {
+      NSButton *cell = [tableView makeViewWithIdentifier:ident owner:nil] ;
+      if (!cell) {
+	cell = [[[NSButton alloc] init] autorelease];
+	[cell setButtonType:NSSwitchButton];
+	[cell setIdentifier:ident];
+	[cell setAction:@selector(clickedCheck:)];
+	[cell setTarget:[CSTableModel sharedModel]];
+      }
+      wcaml_callback_check_cell(tableColumn,cell,row);
+      return cell;
+    }
+  }
+  return nil;
 }
 
 // --------------------------------------------------------------------------
@@ -68,10 +201,11 @@ static CSTableModel * model = nil ;
   return model;
 }
 
+//---- Data Source
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
 {
   static value *service = NULL;
-  if (!service) service = caml_named_value("nstable_items");
+  if (!service) service = caml_named_value("wcaml_nstable_items");
   if (service) {
     value r = caml_callback2( *service , (value) aTableView , Val_unit );
     return Int_val(r);
@@ -86,46 +220,33 @@ static CSTableModel * model = nil ;
   return (id) rowIndex;
 }
 
+// --- Clicked 
+- (void) simpleClick:(id)sender
+{
+  wcaml_nstable_clicked( sender , NO );
+}
+
+- (void) doubleClick:(id)sender
+{
+  wcaml_nstable_clicked( sender , YES );
+}
+
+- (void) editedTextField:(id)sender
+{
+  wcaml_nstable_edited( sender );
+}
+
+- (void) clickedCheck:(id)sender
+{
+  wcaml_nstable_checked( sender );
+}
+
 //--- Delegate
 - (NSView *)tableView:(NSTableView *)tableView 
-   viewForTableColumn:(NSTableColumn *) tableColumn 
+   viewForTableColumn:(NSTableColumn *)tableColumn 
 		  row:(NSInteger)row
 {
-  NSInteger cellKind = wcaml_callback_cell(tableColumn);
-  switch(cellKind) {
-  case 1: // Image Cell
-    {
-      NSImageView *cell = [tableView makeViewWithIdentifier:@"icon" owner:self] ;
-      if (!cell) cell = [[[NSImageView alloc] init] autorelease];
-      wcaml_callback_icon_cell(tableColumn,cell,row);
-      return cell;
-    }
-  case 2: // Text Cell
-    {
-      NSTextField *cell = [tableView makeViewWithIdentifier:@"text" owner:self] ;
-      if (!cell) cell = [[[NSTextField alloc] init] autorelease];
-      wcaml_callback_text_cell(tableColumn,cell,row);
-      return cell;
-    }
-  case 3: // IText Cell
-    {
-      NSTableCellView *cell = [tableView makeViewWithIdentifier:@"itext" owner:self] ;
-      if (!cell) cell = [[[NSTableCellView alloc] init] autorelease];
-      wcaml_callback_itext_cell(tableColumn,cell,row);
-      return cell;
-    }
-  case 4: // Check Cell
-    {
-      NSButton *cell = [tableView makeViewWithIdentifier:@"check" owner:self] ;
-      if (!cell) {
-	cell = [[[NSButton alloc] init] autorelease];
-	[cell setButtonType:NSSwitchButton];
-      }
-      wcaml_callback_check_cell(tableColumn,cell,row);
-      return cell;
-    }
-  }
-  return nil;
+  return wcaml_nstable_render(tableView,tableColumn,row);
 }
 
 @end
@@ -158,6 +279,12 @@ value wcaml_nstable_set_rules(value vtable,value vrules)
   [table setUsesAlternatingRowBackgroundColors:BOOL(vrules)];
 }
 
+value wcaml_nstable_selected_row(value vtable)
+{
+  NSTableView *table = ID(NSTableView,vtable);
+  return Val_int([table selectedRow]);
+}
+
 // --------------------------------------------------------------------------
 // --- NSTableColumn                                                      ---
 // --------------------------------------------------------------------------
@@ -168,6 +295,14 @@ value wcaml_nstablecolumn_create(value vtable,value vid)
   NSString *key = ID(NSString,vid);
   NSTableColumn *column = [[NSTableColumn alloc] initWithIdentifier:key];
   return (value) column;
+}
+
+value wcaml_nstablecolumn_remove(value vtable,value vcolumn)
+{
+  NSTableView *table = ID(NSTableView,vtable);
+  NSTableColumn *column = ID(NSTableColumn,vcolumn);
+  [table removeTableColumn:column];
+  return Val_unit;
 }
 
 value wcaml_nstablecolumn_set_title(value vcolumn,value vtitle)

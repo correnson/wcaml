@@ -4,18 +4,15 @@
 open Event
 open Widget
 
-type style = [ `Text | `Bold | `Code ]
-type align = [ `Left | `Center | `Right ]
-
 (** {3 Cell Models} *)
 
 class type text_cell =
 object
   method set_text : string -> unit
-  method set_style : style -> unit
-  method set_align : align -> unit
-  method set_fg : color -> unit
-  method set_bg : color -> unit
+  method set_style : Widget.style -> unit
+  method set_align : Widget.align -> unit
+  method set_fg : Widget.color -> unit
+  method set_bg : Widget.color -> unit
 end
 
 class type itext_cell =
@@ -49,8 +46,8 @@ end
 class type ['a] text_column = 
 object
   inherit ['a] column
-  method set_align : align -> unit
-  method set_style : style -> unit
+  method set_align : Widget.align -> unit
+  method set_style : Widget.style -> unit
   method set_renderer : (text_cell -> 'a -> unit) -> unit
   method set_editable : ('a -> string -> unit) -> unit
 end
@@ -58,8 +55,8 @@ end
 class type ['a] itext_column = 
 object
   inherit ['a] column
-  method set_align : align -> unit
-  method set_style : style -> unit
+  method set_align : Widget.align -> unit
+  method set_style : Widget.style -> unit
   method set_renderer : (itext_cell -> 'a -> unit) -> unit
   method set_editable : ('a -> string -> unit) -> unit
 end
@@ -73,7 +70,7 @@ end
 class type ['a] check_column = 
 object
   inherit ['a] column
-  method set_renderer : ('a -> bool) -> unit
+  method set_renderer : (check_cell -> 'a -> unit) -> unit
   method set_editable : ('a -> bool -> unit) -> unit
 end
 

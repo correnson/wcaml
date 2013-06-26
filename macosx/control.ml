@@ -18,8 +18,7 @@ class label ?text ?(align=`Left) ?(style=`Label) () =
   let w = NSTextField.create () in
 object(self)
   inherit NSControl.widget (NSTextField.as_control w)
-  method set_text s = 
-    NSControl.set_string (NSTextField.as_control w) (NSString.of_string s)
+  method set_text s = NSTextField.set_text w (NSString.of_string s)
   initializer 
     begin
       Event.option self#set_text text ;
@@ -41,7 +40,7 @@ object(self)
     (NSButton.as_control w) as control
   inherit! [unit] Event.signal as signal
   method! set_enabled e = control#set_enabled e ; signal#set_enabled e
-  method set_label s = 
+  method set_label s =
     NSCell.set_title (NSButton.as_cell w) (NSString.of_string s)
   initializer 
     begin

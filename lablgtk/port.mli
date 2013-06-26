@@ -11,6 +11,7 @@ class pane : #GObj.widget -> Widget.pane
 class widget : layout -> #GObj.widget -> Widget.widget
 class control : ?tooltip:string -> layout -> #GObj.widget -> Widget.control
 
+val verb_font : #GObj.widget -> unit
 val descr_font : #GObj.widget -> unit
 val title_font : #GObj.widget -> unit
 

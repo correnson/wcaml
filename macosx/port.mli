@@ -2,19 +2,38 @@
 
 (** {2 Callbacks} *)
 
-module type ServiceId =
+module type NS_Callback =
 sig
-  val name : string
   type nsobject
   type signature
+  val name : string
   val default : signature
 end
 
-module Service( S : ServiceId ) :
+module type ID_Callback =
 sig
-  val bind : S.nsobject -> S.signature -> unit
-  val remove : S.nsobject -> unit
+  type signature
+  val name : string
+  val default : signature
 end
+
+module type Callback =
+sig
+  type index
+  type signature
+  val default : signature
+  val mem : index -> bool
+  val bind : index -> signature -> unit
+  val remove : index -> unit
+end
+
+module IDCallback( S : ID_Callback ) :
+  Callback with type signature = S.signature
+	  and type index = string
+
+module NSCallback( S : NS_Callback ) : 
+  Callback with type signature = S.signature
+	  and type index = S.nsobject
 
 (** {2 Data and Collections}
     All Objects are allocated in the autorelease pool. *)

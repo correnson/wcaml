@@ -54,7 +54,10 @@ let descr_font w =
 let title_font w = 
   set_font (fun f -> Pango.Font.set_weight f `BOLD) w
 
+let verb_font w = w#misc#modify_font_by_name "Monospace"
+
 let fg = function
+  | `Default -> ""
   | `Black -> "Black"
   | `Grey  -> "Silver"
   | `Dark  -> "Gray"
@@ -67,6 +70,7 @@ let fg = function
   | `Violet -> "BlueViolet"
 
 let bg = function
+  | `Default -> ""
   | `Black -> "Dark"
   | `Grey  -> "LightGrey"
   | `Dark  -> "DarkGray"

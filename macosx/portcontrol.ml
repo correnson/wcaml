@@ -6,9 +6,9 @@ open Port
 
 type emitter
 
-module Signal = Service
+module Signal = NSCallback
   (struct
-     let name = "nscontrol_signal"
+     let name = "wcaml_nscontrol_signal"
      type nsobject = emitter
      type signature = unit -> unit
      let default () = ()
@@ -110,8 +110,8 @@ module NSTextField =
 struct
   type t
   type attr = [
-  | `Left | `Right | `Center 
-  | `Label | `Title | `Descr
+  | `Left | `Right | `Center (* Widget.align *)
+  | `Label | `Title | `Descr | `Verbatim (* Widget.style *)
   | `Static | `Editable
   ]
   let as_control : t -> NSControl.t = Obj.magic
@@ -125,9 +125,12 @@ struct
     | `Label -> 4
     | `Title -> 5
     | `Descr -> 6
+    | `Verbatim -> 7
     | `Static -> 10
     | `Editable -> 20
   let set_attribute w a = set_attribute w (attr a)
+  let set_text w s = NSControl.set_string (as_control w) s
+  let get_text w = NSControl.get_string (as_control w)
 end
 
 module NSImage =
@@ -153,4 +156,12 @@ struct
 	    Hashtbl.add cache f img ; img
 	  else
 	    failwith (Printf.sprintf "Icon file %S not found." f)
+end
+
+module NSImageView =
+struct
+  type t
+  let as_view : t -> NSView.t = Obj.magic
+  let as_control : t -> NSControl.t = Obj.magic
+  external set_image : t -> NSImage.t -> unit = "wcaml_nsimage_set"
 end

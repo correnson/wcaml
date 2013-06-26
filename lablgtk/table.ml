@@ -5,7 +5,6 @@
 open Event
 open Widget
 open Port
-open Model
 
 (* -------------------------------------------------------------------------- *)
 (* --- Custom List Model                                                  --- *)
@@ -182,7 +181,7 @@ class ['a] gcolumn
   (model:'a #custom)
   (cb:'a #update) 
   (id:string) =
-  let s : sorting selector = new Event.selector `Unsorted in
+  let s : Model.sorting selector = new Event.selector `Unsorted in
 object(self)
 
   initializer 
@@ -237,7 +236,7 @@ let tags_of_pixbuf resources f =
   let path = Filename.concat !resources f in
   match Port.pixbuf path with None -> [] | Some p -> [`PIXBUF p]
 
-let icon (icn:Widget.icon) = match icn with
+let tags_of_icon (icn:Widget.icon) = match icn with
   | `NoIcon        -> []
   | `Warning       -> [`STOCK_SIZE `MENU;`STOCK_ID "gtk-dialog-warning"]
   | `Execute       -> [`STOCK_ID "gtk-execute"]
@@ -261,10 +260,10 @@ object(self)
   inherit ['a] gcolumn gtree gcol model cb id
   val mutable renderer : 'a -> Widget.icon = fun _ -> `NoIcon
   method private updated m i =
-    let tags = match model#custom_get_iter (m#get_path i) with
-      | None -> []
-      | Some e -> icon (renderer e)
-    in gcell#set_properties tags
+    gcol#clear_attributes gcell ;
+    match model#custom_get_iter (m#get_path i) with
+      | None -> ()
+      | Some e -> gcell#set_properties (tags_of_icon (renderer e))
   method set_renderer f = renderer <- f
   initializer 
     begin
@@ -280,27 +279,55 @@ end
 (* --- Text Cell                                                          --- *)
 (* -------------------------------------------------------------------------- *)
 
-let xalign (a:align) = 
-  match a with `Left -> 0.0 | `Center -> 0.5 | `Right -> 1.0
+let xalign = function `Left -> 0.0 | `Center -> 0.5 | `Right -> 1.0
 
-class gtext_cell (r : GTree.cell_renderer_text) =
+let tags_of_style = function
+  | `Label -> []
+  | `Title -> [`WEIGHT `BOLD]
+  | `Descr -> [`SIZE (-2)]
+  | `Verbatim -> [`FONT "Monospace"]
+
+let tags_of_fg = function
+  | `Default -> []
+  | c -> [`FOREGROUND (Port.fg c)]
+
+let tags_of_bg = function
+  | `Default -> []
+  | c -> [`CELL_BACKGROUND (Port.bg c)]
+      
+class gtext_cell 
+  (gcol : GTree.view_column) 
+  (field : GTree.cell_renderer_text) =
 object
-  val mutable tags = []
+  val mutable text = ""
+  val mutable align : align = `Left
+  val mutable style : style = `Label
+  val mutable fg : color = `Default
+  val mutable bg : color = `Default
   val mutable editable = false
-  method set_icon (_:icon) = ()
-  method set_editable e = editable <- e
-  method set_align a = tags <- `XALIGN (xalign a) :: tags
-  method set_style (s:style) = match s with
-    | `Text -> tags <- `FONT "Helvetica" :: tags
-    | `Code -> tags <- `FONT "Monospace" :: tags
-    | `Bold -> tags <- `WEIGHT `BOLD :: tags
-  method set_text s = tags <- `TEXT s :: tags
-  method set_fg c = tags <- `FOREGROUND (Port.fg c) :: tags
-  method set_bg c = tags <- `BACKGROUND (Port.bg c) :: tags
-  method clear = r#set_properties [] ; tags <- []
-  method apply =
-    if editable then tags <- `EDITABLE true :: tags ;
-    r#set_properties (List.rev tags) ; tags <- []
+  method clear a s e =
+    begin
+      text <- "" ;
+      align <- a ;
+      style <- s ;
+      editable <- e ;
+      fg <- `Default ;
+      bg <- `Default ;
+      gcol#clear_attributes field ;
+    end
+  method set_icon (_:Widget.icon) = ()
+  method set_align a = align <- a
+  method set_style s = style <- s
+  method set_text s = text <- s
+  method set_fg c = fg <- c
+  method set_bg c = bg <- c
+  method apply : unit = field#set_properties
+    begin
+      [`TEXT text;`XALIGN (xalign align);`EDITABLE editable]
+      @ tags_of_style style
+      @ tags_of_fg fg
+      @ tags_of_bg bg
+    end
 end
 
 (* -------------------------------------------------------------------------- *)
@@ -308,14 +335,52 @@ end
 (* -------------------------------------------------------------------------- *)
 
 class gitext_cell 
-  (i : GTree.cell_renderer_pixbuf) 
-  (r : GTree.cell_renderer_text) =
+  (gcol : GTree.view_column)
+  (image : GTree.cell_renderer_pixbuf)
+  (field : GTree.cell_renderer_text) =
 object
-  inherit gtext_cell r as gtext
-  val mutable itags = []
-  method! set_icon icn = itags <- icon icn
-  method! clear = gtext#clear ; i#set_properties []
-  method! apply = gtext#apply ; i#set_properties itags ; itags <- []
+  inherit gtext_cell gcol field as gtext
+  val mutable icon = `NoIcon
+  method! set_icon icn = icon <- icn
+  method! clear a s e = 
+    begin
+      gtext#clear a s e ; 
+      icon <- `NoIcon ;
+      gcol#clear_attributes image ;
+    end
+  method! apply : unit =
+    begin
+      image#set_properties (tags_of_icon icon) ;
+      gtext#apply ;
+    end
+end
+
+(* -------------------------------------------------------------------------- *)
+(* --- Check Cell                                                         --- *)
+(* -------------------------------------------------------------------------- *)
+
+class gcheck_cell
+  (gcol : GTree.view_column)
+  (b : GTree.cell_renderer_toggle)
+  (t : GTree.cell_renderer_text) =
+object
+  val mutable text = ""
+  val mutable checked = false
+  method checked = checked
+  method set_text t = text <- t
+  method set_check b = checked <- b
+  method clear : unit =
+    begin
+      text <- "";
+      checked <- false;
+      gcol#clear_attributes b ;
+      gcol#clear_attributes t ;
+    end
+  method apply : unit =
+    begin
+      b#set_properties [`ACTIVE checked] ;
+      t#set_properties [`TEXT text;`XALIGN 0.0] ;
+    end
 end
 
 (* -------------------------------------------------------------------------- *)
@@ -328,17 +393,19 @@ class ['a] gtext_signals
   (gtext : #gtext_cell)
   (model : 'a #custom) =
 object(self)
-  val mutable style = None
-  val mutable styler = fun (_:gtext_cell) (_:'a) -> ()
+  val mutable align = `Left
+  val mutable style = `Label
+  val mutable render = fun (_:gtext_cell) (_:'a) -> ()
   val mutable editor = fun (_:'a) (_:string) -> ()
+  val mutable editable = false
   val mutable connected = false
-  method set_align a = gcol#set_alignment (xalign a)
-  method set_style s = style <- Some s
-  method set_renderer f = styler <- f
+  method set_align a = align <- a
+  method set_style s = style <- s
+  method set_renderer f = render <- f
   method set_editable f = 
     begin
       editor <- f ;
-      gtext#set_editable true ;
+      editable <- true ;
       if not connected then
 	begin
 	  connected <- true ;
@@ -346,12 +413,10 @@ object(self)
 	end
     end
   method private updated m i =
+    gtext#clear align style editable ;
     match model#custom_get_iter (m#get_path i) with
-      | None -> gtext#clear
-      | Some e -> 
-	  Event.option gtext#set_style style ;
-	  styler (gtext :> 'b) e ; 
-	  gtext#apply
+      | None -> ()
+      | Some e -> render (gtext :> 'b) e ; gtext#apply
   method private edited p s =
     match model#custom_get_iter p with
       | None -> ()
@@ -375,7 +440,7 @@ class ['a] gtext_column
   ~(id:string) ?title () =
   let gcol = GTree.view_column ?title () in
   let gcell = GTree.cell_renderer_text [] in
-  let gtext = new gtext_cell gcell in
+  let gtext = new gtext_cell gcol gcell in
 object
   inherit ['a] gcolumn gtree gcol model cb id
   inherit ['a] gtext_signals gcol gcell gtext model
@@ -389,14 +454,14 @@ class ['a] gitext_column
   (gtree:GTree.view) (model:'a #custom) (cb:'a #update) 
   ~(id:string) ?(expander=false) ?title () =
   let gcol = GTree.view_column ?title () in
-  let gicon = GTree.cell_renderer_pixbuf [] in 
-  let gcell = GTree.cell_renderer_text [] in
-  let gtext = new gitext_cell gicon gcell in
+  let gimage = GTree.cell_renderer_pixbuf [] in 
+  let gfield = GTree.cell_renderer_text [] in
+  let gtext = new gitext_cell gcol gimage gfield in
 object
   inherit ['a] gcolumn gtree gcol model cb id
   initializer if expander then gtree#set_expander_column (Some gcol)
-  initializer gcol#pack ~expand:false gicon
-  inherit ['a] gtext_signals gcol gcell gtext model
+  initializer gcol#pack ~expand:false gimage
+  inherit ['a] gtext_signals gcol gfield (gtext :> gtext_cell) model
 end
 
 (* -------------------------------------------------------------------------- *)
@@ -407,33 +472,37 @@ class ['a] gcheck_column
   (gtree:GTree.view) (model:'a #custom) (cb:'a #update) 
   ~(id:string) ?title () =
   let gcol = GTree.view_column ?title () in
-  let gcell = GTree.cell_renderer_toggle [] in
+  let gtoggle = GTree.cell_renderer_toggle [] in
+  let gtitle = GTree.cell_renderer_text [] in
+  let gcheck = new gcheck_cell gcol gtoggle gtitle in
 object(self)
   inherit ['a] gcolumn gtree gcol model cb id
-  val mutable renderer : 'a -> bool = fun _ -> false
+  val mutable renderer : Model.check_cell -> 'a -> unit = fun _ _ -> ()
   val mutable callback : 'a -> bool -> unit = fun _ _ -> ()
-  val mutable editable = false
   method private updated m i =
-    let tags = match model#custom_get_iter (m#get_path i) with
-      | None -> [`ACTIVATABLE false;`ACTIVE false]
-      | Some e -> [`ACTIVATABLE editable;`ACTIVE (renderer e)]
-    in gcell#set_properties tags
+    gcheck#clear ;
+    match model#custom_get_iter (m#get_path i) with
+      | None -> ()
+      | Some e -> renderer (gcheck :> Model.check_cell) e ; gcheck#apply
   method private toggled p =
     match model#custom_get_iter p with
       | None -> ()
-      | Some e -> callback e (not (renderer e))
+      | Some e -> 
+	  renderer (gcheck :> Model.check_cell) e ;
+	  callback e gcheck#checked
+	  
   method set_renderer f = renderer <- f
-  method set_editable f = 
-    callback <- f ; 
-    editable <- true ;
-    ignore (gcell#connect#toggled ~callback:self#toggled)
+  method set_editable f = callback <- f
+
   initializer
     begin
       gcol#set_alignment 0.5 ;
       gcol#set_sizing `FIXED ;
       gcol#set_resizable false ;
-      gcol#pack ~expand:true gcell ;
-      gcol#set_cell_data_func gcell self#updated
+      gcol#pack ~expand:false gtoggle ;
+      gcol#pack ~expand:true gtitle ;
+      gcol#set_cell_data_func gtoggle self#updated ;
+      ignore (gtoggle#connect#toggled ~callback:self#toggled) ;
     end
 end
 
@@ -505,7 +574,7 @@ object(self)
     if scol = None then scol <- Some column#gcol ;
     ( column :> 'a Model.check_column )
 
-  method remove_colum (gcol : 'a column) = gcol#remove
+  method remove_colum (gcol : 'a Model.column) = gcol#remove
 
 end
 

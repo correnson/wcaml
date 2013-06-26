@@ -9,9 +9,6 @@ open Widget
 (* ---  Labels                                                            --- *)
 (* -------------------------------------------------------------------------- *)
 
-type align = [ `Left | `Right | `Center ]
-type style = [ `Label | `Title | `Descr ]
-
 let xalign = function `Left -> 0.0 | `Right -> 1.0 | `Center -> 0.5
 
 class label ?text ?(align=`Left) ?(style=`Label) () =
@@ -23,6 +20,7 @@ object
     | `Label -> ()
     | `Title -> Port.title_font w
     | `Descr -> Port.descr_font w ; w#set_line_wrap true
+    | `Verbatim -> Port.verb_font w
 end
 
 (* -------------------------------------------------------------------------- *)

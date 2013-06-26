@@ -17,7 +17,7 @@ static CSSignal *target = nil;
 - (void)fireSignal:(id)sender 
 { 
   static value *service = NULL;
-  if (!service) service = caml_named_value("nscontrol_signal");
+  if (!service) service = caml_named_value("wcaml_nscontrol_signal");
   if (service) caml_callback2( *service , (value) sender , Val_unit );
   return;
 }
@@ -94,7 +94,8 @@ value wcaml_nstextfield_create(value vunit)
 value wcaml_nstextfield_set_attribute(value vtextfield,value vattr)
 {
   NSTextField *textField = ID(NSTextField,vtextfield);
-  switch(Int_val(vattr)) {
+  NSInteger attr = Int_val(vattr);
+  switch(attr) {
   case 1: [textField setAlignment:NSLeftTextAlignment]; break;
   case 2: [textField setAlignment:NSRightTextAlignment]; break;
   case 3: [textField setAlignment:NSCenterTextAlignment]; break;
@@ -103,6 +104,12 @@ value wcaml_nstextfield_set_attribute(value vtextfield,value vattr)
   case 6: 
     [textField setFont:[NSFont controlContentFontOfSize:
 				 [NSFont smallSystemFontSize]]];
+    break;
+  case 7:
+    {
+      NSFont *font = [NSFont fontWithName:@"Courier" size:12.0];
+      if (font) [textField setFont:font];
+    }
     break;
   case 10: 
     [textField setBordered:NO];
@@ -117,6 +124,8 @@ value wcaml_nstextfield_set_attribute(value vtextfield,value vattr)
     [textField setSelectable:YES];
     [textField setEditable:YES];
     break;
+  default:
+    NSLog(@"CScontrol: unknown text-attribute %d",attr);
   }
   return Val_unit;
 }
@@ -129,13 +138,16 @@ value wcaml_nsimage_system(value vcode)
 {
   NSString *ref = nil;
   switch(Int_val(vcode)) {
+    //--- Status
   case 10: ref = NSImageNameStatusNone; break;
   case 11: ref = NSImageNameStatusAvailable; break;
   case 12: ref = NSImageNameStatusPartiallyAvailable; break;
   case 13: ref = NSImageNameStatusUnavailable; break;
+    //--- Interaction
   case 21: ref = NSImageNameCaution; break;
   case 22: ref = NSImageNameActionTemplate; break;
   case 23: ref = NSImageNameTrashEmpty; break;
+    //--- Default -> ref=nil
   }
   NSImage *img = ref ? [NSImage imageNamed:ref] : nil ;
   return (value) img;
@@ -146,6 +158,18 @@ value wcaml_nsimage_create(value vfile)
   NSString *file = ID(NSString,vfile);
   NSImage *img = [[NSImage alloc] initWithContentsOfFile:file];
   return (value) img;
+}
+
+/* -------------------------------------------------------------------------- */
+/* --- NSImageView                                                        --- */
+/* -------------------------------------------------------------------------- */
+
+value wcaml_nsimage_set(value vcontrol,value vimage)
+{
+  NSImageView *control = ID(NSImageView,vcontrol);
+  NSImage *image = ID(NSImage,vimage);
+  [control setImage:image];
+  return Val_unit;
 }
 
 /* -------------------------------------------------------------------------- */
