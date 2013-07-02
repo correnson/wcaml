@@ -39,6 +39,7 @@ module NSCallback( S : NS_Callback ) :
     All Objects are allocated in the autorelease pool. *)
 
 val nil : 'a (** Cocoa object [nil] *)
+val addr : 'a -> int (** Cocoa physical address *)
 
 module NSString :
 sig

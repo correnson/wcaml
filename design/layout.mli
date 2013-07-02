@@ -3,6 +3,9 @@
 open Event
 open Widget
 
+(** Places the controls upon the main pane. *)
+class toolbar : Widget.widget list -> Widget.pane -> Widget.pane
+
 (** Simple form layout.
     
     The pane consists of a vertical stack of elements. Each row is
@@ -28,12 +31,6 @@ object
   method add_vbox : ?label:string -> Widget.widget list -> unit
   method add_pane : ?label:string -> Widget.pane -> unit
 end
-
-(** Horizontal left-aligned stack. *)
-class hbox : Widget.widget list -> Widget.pane
-
-(** Vertical top-aligned stack. *)
-class vbox : Widget.widget list -> Widget.pane
 
 (** An horizontal split pane tuned 
     for a (left) side pane and a (right) main content. 

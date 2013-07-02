@@ -112,6 +112,7 @@ value wcaml_nswindow_set_content(value vwindow,value vcontent)
   NSWindow *window = ID(NSWindow,vwindow);
   NSView *content = ID(NSView,vcontent);
   [window setContentView:content];
+  [content setTranslatesAutoresizingMaskIntoConstraints:YES];
   return Val_unit;
 }
 

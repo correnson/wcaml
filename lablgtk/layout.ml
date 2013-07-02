@@ -105,6 +105,7 @@ end
 (* --- Boxes                                                              --- *)
 (* -------------------------------------------------------------------------- *)
 
+(*
 class hbox (controls : Widget.widget list) =
   let box = GPack.hbox ~homogeneous:false () in
 object(self)
@@ -127,6 +128,27 @@ object(self)
     let expand = Port.vexpand layout in
     box#pack ~expand widget
   initializer List.iter self#pack controls
+end
+*)
+
+class toolbar (controls : Widget.widget list) (main : Widget.pane) =
+  let hbox = GPack.hbox ~homogeneous:false () in
+  let vbox = GPack.vbox ~homogeneous:false () in
+object(self)
+  inherit Port.pane vbox
+  method private pack (ctrl : Widget.widget) =
+    let layout = Port.get_layout ctrl in
+    let widget = Port.get_widget ctrl in
+    let expand = Port.hexpand layout in
+    hbox#pack ~expand widget
+  initializer 
+    begin
+      hbox#set_border_width 3 ;
+      hbox#set_spacing 6 ;
+      List.iter self#pack controls ;
+      vbox#pack ~expand:false hbox#coerce ;
+      vbox#pack ~expand:true ~fill:true (Port.get_widget main) ;
+    end
 end
 
 (* -------------------------------------------------------------------------- *)

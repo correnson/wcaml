@@ -35,8 +35,6 @@ class type ['a] column =
 object
   method remove : unit
   method set_title : string -> unit
-  method update : 'a -> unit
-  method update_all : unit -> unit
   method sorting : sorting Event.selector
   method on_header : unit callback
   method on_click : 'a callback
@@ -102,21 +100,35 @@ end
 (** {3 View Model} *)
 
 (** Column View Constructor *)
-type 'a cview = id:string -> ?title:string -> unit -> 'a
+type 'a cview = ?id:string -> ?title:string -> unit -> 'a
 
 (** Table View Interface *)
-class type ['a] view =
+class type ['a,'b] view =
 object
   inherit Widget.pane
 
   (** {2 Model Change Notifications} 
       These methods {i must} be invoked whenever the model changed. *)
 
-  method reload : 'a option -> unit
-  method update : 'a -> unit
-  method update_all : unit -> unit
+  method set_model : 'b -> unit
+
+  method update : unit 
+    (** Update all visible rows. *)
+
+  method update_item : 'a -> unit 
+    (** Update the item's row (if visible). *)
+
+  method reload : unit 
+    (** Reload the entire model. *)
+
+  method reload_node : 'a -> unit 
+    (** Reload the given sub-tree. For lists, same as [update_item]. *)
+
   method added : 'a -> unit
+    (** The model is unchanged but the added item. *)
+
   method removed : 'a -> unit
+    (** The model is unchanged but the removed item (and all its children, if any). *)
 
   (** {2 Column Views} *)
 
@@ -133,9 +145,9 @@ object
   method scroll : 'a -> unit
   method on_click : 'a callback
   method on_double_click : 'a callback
-(*
-  method on_selection : 'a callback
-  method selected : int
-  method iter_selected : ('a -> unit) -> unit
-*)
+    (*
+      method on_selection : 'a callback
+      method selected : int
+      method iter_selected : ('a -> unit) -> unit
+    *)
 end

@@ -81,9 +81,13 @@ void wcaml_callback_itext_cell
   if (!service) return;
   NSImageView *image = [cell imageView];
   NSTextField *field = [cell textField];
-  caml_callback4( *service, (value) tableColumn , 
-		  (value) image , (value) field, 
-		  Val_int(row) );
+  value params[4] = {
+    (value) tableColumn,
+    (value) image,
+    (value) field,
+    Val_int(row)
+  };
+  caml_callbackN( *service, 4 , params);
 }
 
 void wcaml_callback_check_cell
@@ -205,21 +209,13 @@ static CSTableModel * model = nil ;
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
 {
   static value *service = NULL;
-  if (!service) service = caml_named_value("wcaml_nstable_items");
+  if (!service) service = caml_named_value("wcaml_nstable_list_size");
   if (service) {
     value r = caml_callback2( *service , (value) aTableView , Val_unit );
     return Int_val(r);
   }
   return 0;
 }
-
-- (id)             tableView:(NSTableView *)aTableView 
-   objectValueForTableColumn:(NSTableColumn *)aTableColumn 
-			 row:(NSInteger)rowIndex
-{
-  return (id) rowIndex;
-}
-
 // --- Clicked 
 - (void) simpleClick:(id)sender
 {
@@ -259,9 +255,10 @@ value wcaml_nstable_create(value vid)
 {
   NSTableView *table = [[NSTableView alloc] init];
   NSString *key = ID(NSString,vid);
-  [table setDataSource:[CSTableModel sharedModel]];
+  CSTableModel *model = [CSTableModel sharedModel];
+  [table setDataSource:model];
+  [table setDelegate:model];
   [table setAutosaveName:key];
-  [table setAutosaveTableColumns:YES];
   return (value) table;
 }
 
@@ -285,6 +282,51 @@ value wcaml_nstable_selected_row(value vtable)
   return Val_int([table selectedRow]);
 }
 
+value wcaml_nstable_reload(value vtable)
+{
+  NSTableView *table = ID(NSTableView,vtable);
+  [table reloadData];
+  return Val_unit;
+
+}
+
+value wcaml_nstable_update_all(value vtable)
+{
+  NSTableView *table = ID(NSTableView,vtable);
+  [table setNeedsDisplay];
+  return Val_unit;
+}
+
+value wcaml_nstable_update_row(value vtable,value vrow)
+{
+  NSTableView *table = ID(NSTableView,vtable);
+  [table setNeedsDisplayInRect:[table rectOfRow:Int_val(vrow)]];
+  return Val_unit;
+}
+
+value wcaml_nstable_added_row(value vtable,value vrow)
+{
+  NSTableView *table = ID(NSTableView,vtable);
+  NSIndexSet *range = [NSIndexSet indexSetWithIndex:Int_val(vrow)];
+  [table insertRowsAtIndexes:range withAnimation:NSTableViewAnimationSlideDown];
+  return Val_unit;
+}
+
+value wcaml_nstable_removed_row(value vtable,value vrow)
+{
+  NSTableView *table = ID(NSTableView,vtable);
+  NSIndexSet *range = [NSIndexSet indexSetWithIndex:Int_val(vrow)];
+  [table removeRowsAtIndexes:range withAnimation:NSTableViewAnimationSlideUp];
+  return Val_unit;
+}
+
+value wcaml_nstable_scroll(value vtable,value vrow)
+{
+  NSTableView *table = ID(NSTableView,vtable);
+  [table scrollRowToVisible:Int_val(vrow)];
+  return Val_unit;
+}
+
 // --------------------------------------------------------------------------
 // --- NSTableColumn                                                      ---
 // --------------------------------------------------------------------------
@@ -294,6 +336,9 @@ value wcaml_nstablecolumn_create(value vtable,value vid)
   NSTableView *table = ID(NSTableView,vtable);
   NSString *key = ID(NSString,vid);
   NSTableColumn *column = [[NSTableColumn alloc] initWithIdentifier:key];
+  [table setAutosaveTableColumns:NO];
+  [table addTableColumn:column];
+  [table setAutosaveTableColumns:YES];
   return (value) column;
 }
 
@@ -309,7 +354,19 @@ value wcaml_nstablecolumn_set_title(value vcolumn,value vtitle)
 {
   NSTableColumn *column = ID(NSTableColumn,vcolumn);
   NSString *title = ID(NSString,vtitle);
-  [[column headerCell] setString:title];
+  [[column headerCell] setStringValue:title];
+  return Val_unit;
+}
+
+value wcaml_nstablecolumn_set_align(value vcolumn,value valign)
+{
+  NSTableColumn *column = ID(NSTableColumn,vcolumn);
+  NSCell *cell = [column headerCell];
+  switch(Int_val(valign)) {
+  case 1: [cell setAlignment:NSLeftTextAlignment]; break;
+  case 2: [cell setAlignment:NSCenterTextAlignment]; break;
+  case 3: [cell setAlignment:NSRightTextAlignment]; break;
+  }
   return Val_unit;
 }
   

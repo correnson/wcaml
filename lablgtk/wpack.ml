@@ -58,7 +58,7 @@ let make_config_file () =
     config_key fmt "version" !version ;
     config_key fmt "app_url" url ;
     config_key fmt "app_file" file ;
-    config_key fmt "resources" !resources ;
+    config_key fmt "wcaml_resources" !resources ;
     Format.pp_print_flush fmt () ;
     close_out out ;
   end

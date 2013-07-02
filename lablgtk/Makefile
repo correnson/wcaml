@@ -49,7 +49,7 @@ DISTRIB= wcamlpack wcaml.cmi wcaml.cmxa wcaml.a
 install:
 	@echo "Install WCaml."
 	@ocamlfind remove wcaml
-	@ocamlfind install wcaml META $(DISTRIB)
+	@ocamlfind install wcaml META $(DISTRIB) $(WCAML_SHARE)
 
 uninstall:
 	@echo "Removing WCaml."

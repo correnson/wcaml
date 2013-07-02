@@ -11,10 +11,6 @@
 
 //--- DataSource
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView;
-- (id)            tableView:(NSTableView *)aTableView 
-  objectValueForTableColumn:(NSTableColumn *)aTableColumn 
-			row:(NSInteger)rowIndex;
-
 //--- Actions
 - (void) simpleClick:(id)sender;
 - (void) doubleClick:(id)sender;

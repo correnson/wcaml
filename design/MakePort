@@ -21,3 +21,16 @@ port: .port
 clean::
 	rm -f .port $(WCAML_LOCAL)
 
+# --------------------------------------------------------------------------
+
+WCAML_ICONS= \
+	status_green.png \
+	status_none.png	\
+	status_orange.png \
+	status_red.png \
+	switch-off.png \
+	switch-on.png
+
+WCAML_SHARE= $(addprefix ../design/share/,$(WCAML_ICONS))
+
+# --------------------------------------------------------------------------

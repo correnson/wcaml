@@ -12,6 +12,7 @@ sig
   val add_subview : t -> t -> unit
   val has_baseline : t -> bool
   val set_layout : t -> layout -> t -> t -> int -> unit
+  val set_autolayout : t -> bool -> unit
   val debug : t -> unit
 
   val kHsep      : layout

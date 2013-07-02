@@ -9,6 +9,11 @@ value wcaml_nil(value vunit)
   return (value) nil;
 }
 
+value wcaml_addr(value vobj)
+{
+  return Val_int( (unsigned long) vobj );
+}
+
 // --------------------------------------------------------------------------
 // --- NSString                                                           ---
 // --------------------------------------------------------------------------

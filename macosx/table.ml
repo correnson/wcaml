@@ -20,6 +20,12 @@ struct
   external set_rules : t -> bool -> unit = "wcaml_nstable_set_rules"
   external set_headers : t -> unit = "wcaml_nstable_set_headers"
   external selected_row : t -> int = "wcaml_nstable_selected_row"
+  external reload : t -> unit = "wcaml_nstable_reload"
+  external update_all : t -> unit = "wcaml_nstable_update_all"
+  external update_row : t -> int -> unit = "wcaml_nstable_update_row"
+  external added_row : t -> int -> unit = "wcaml_nstable_added_row"
+  external removed_row : t -> int -> unit = "wcaml_nstable_removed_row"
+  external scroll : t -> int -> unit = "wcaml_nstable_scroll"
 end
 
 module NSTableColumn =
@@ -28,19 +34,28 @@ struct
   external create : NSTable.t -> NSString.t -> t = "wcaml_nstablecolumn_create"
   external remove : NSTable.t -> t -> unit = "wcaml_nstablecolumn_remove"
   external set_title : t -> NSString.t -> unit = "wcaml_nstablecolumn_set_title"
+  external set_align : t -> int -> unit = "wcaml_nstablecolumn_set_align"
+  let set_align col = function
+    | `Left -> set_align col 1
+    | `Center -> set_align col 2
+    | `Right -> set_align col 3
 end
 
 (* -------------------------------------------------------------------------- *)
-(* --- Services                                                           --- *)
+(* --- Model Services                                                     --- *)
 (* -------------------------------------------------------------------------- *)
 
-module Items = NSCallback
+module ListSize = NSCallback
   (struct
-     let name = "wcaml_nstable_items"
+     let name = "wcaml_nstable_list_size"
      type nsobject = NSTable.t
      type signature = unit -> int
      let default () = 0
    end)
+
+(* -------------------------------------------------------------------------- *)
+(* --- Cell Services                                                      --- *)
+(* -------------------------------------------------------------------------- *)
 
 let kIconCell = 1
 let kTextCell = 2
@@ -108,6 +123,7 @@ module ClickedCheck = IDCallback
 class type ['a] custom =
 object
   method get : int -> 'a
+  method index : 'a -> int
 end
 
 class ['a] gcolumn wtable kind ~tid ~cid ?title () =
@@ -116,6 +132,7 @@ class ['a] gcolumn wtable kind ~tid ~cid ?title () =
   let s = new Event.selector `Unsorted in
 object(self)
   method set_title t = NSTableColumn.set_title wcol (NSString.of_string t)
+  method set_align a = NSTableColumn.set_align wcol (a : align)
 
   method update (_:'a) = ()
   method update_all () = ()
@@ -145,7 +162,7 @@ end
 (* --- Icon Columns                                                       --- *)
 (* -------------------------------------------------------------------------- *)
 
-class ['a] gicon_column wtable (model : 'a #custom) ~tid ~cid ?title () =
+class ['a] gicon_column ~wtable ~(custom : 'a #custom) ~tid ~cid ?title () =
 object(self)
   inherit ['a] gcolumn wtable kIconCell ~tid ~cid ?title () as super
 
@@ -162,7 +179,7 @@ object(self)
     end
     
   method render row = 
-    let icon = try renderer (model#get row) with Not_found -> `NoIcon in
+    let icon = try renderer (custom#get row) with Not_found -> `NoIcon in
     NSImage.icon icon
 end
 
@@ -194,7 +211,7 @@ end
 (* --- Text Columns                                                       --- *)
 (* -------------------------------------------------------------------------- *)
 
-class ['a] gtext_column wtable (model : 'a #custom) ~tid ~cid ?title () =
+class ['a] gtext_column ~wtable ~(custom : 'a #custom) ~tid ~cid ?title () =
 object(self)
   inherit ['a] gcolumn wtable kTextCell ~tid ~cid ?title () as super
 
@@ -225,18 +242,18 @@ object(self)
   val mutable align : Widget.align = `Left
     
   method set_style sty = style <- sty
-  method set_align aln = align <- aln
+  method! set_align aln = align <- aln ; super#set_align aln
 
   method edited field =
     try
       let row = NSTable.selected_row wtable in
-      let item = model#get row in
+      let item = custom#get row in
       listener item (NSString.to_string (NSTextField.get_text field))
     with Not_found -> ()
 
   method render field row = 
     try 
-      let item = model#get row in
+      let item = custom#get row in
       let cell = new gtext_cell ~field ~editable ~style ~align in
       renderer (cell :> Model.text_cell) item ;
       cell#apply
@@ -264,7 +281,7 @@ end
 (* --- IText Columns                                                      --- *)
 (* -------------------------------------------------------------------------- *)
 
-class ['a] gitext_column wtable (model : 'a #custom) ~tid ~cid ?title () =
+class ['a] gitext_column ~wtable ~(custom : 'a #custom) ~tid ~cid ?title () =
 object(self)
   inherit ['a] gcolumn wtable kITextCell ~tid ~cid ?title () as super
 
@@ -295,18 +312,18 @@ object(self)
   val mutable align : Widget.align = `Left
     
   method set_style sty = style <- sty
-  method set_align aln = align <- aln
+  method! set_align aln = align <- aln ; super#set_align aln
 
   method edited field =
     try
       let row = NSTable.selected_row wtable in
-      let item = model#get row in
+      let item = custom#get row in
       listener item (NSString.to_string (NSTextField.get_text field))
     with Not_found -> ()
 
   method render image field row = 
     try 
-      let item = model#get row in
+      let item = custom#get row in
       let cell = new gitext_cell ~field ~image ~editable ~style ~align in
       renderer (cell :> Model.itext_cell) item ;
       cell#apply
@@ -335,7 +352,7 @@ end
 (* --- Check Columns                                                      --- *)
 (* -------------------------------------------------------------------------- *)
 
-class ['a] gcheck_column wtable (model : 'a #custom) ~tid ~cid ?title () =
+class ['a] gcheck_column ~wtable ~(custom : 'a #custom) ~tid ~cid ?title () =
 object(self)
   inherit ['a] gcolumn wtable kCheckCell ~tid ~cid ?title () as super
     
@@ -359,13 +376,13 @@ object(self)
   method clicked cell =
     try
       let row = NSTable.selected_row wtable in
-      let item = model#get row in
+      let item = custom#get row in
       listener item (NSCell.get_state cell) ;
     with Not_found -> ()
     
   method render cell row = 
     try 
-      let item = model#get row in
+      let item = custom#get row in
       let cell = new gcheck_cell ~cell in
       renderer (cell :> Model.check_cell) item ;
       cell#apply
@@ -377,60 +394,114 @@ end
 (* --- Columns Management                                                 --- *)
 (* -------------------------------------------------------------------------- *)
 
-class ['a] gcolumns (wtable:NSTable.t) (headers:bool) (custom:'a #custom) ~tid =
-object
+class ['a] gcolumns 
+  ~(wtable:NSTable.t) 
+  ~(headers:bool) 
+  ~(custom:'a #custom) 
+  ~tid =
+object(self)
   inherit NSView.pane (NSView.scroll (NSTable.as_view wtable))
   initializer if headers then NSTable.set_headers wtable
 
-  method reload (_ : 'a option) = ()    
-  method update (_ : 'a) = ()
-  method update_all () = ()
-  method added (_ : 'a) = ()
-  method removed (_ : 'a) = ()
+  method reload = NSTable.reload wtable
+  method update = NSTable.update_all wtable
+  method reload_node = self#update_item
+  method update_item e = NSTable.update_row wtable (custom#index e)
+  method added e = NSTable.added_row wtable (custom#index e)
+  method removed e = NSTable.removed_row wtable (custom#index e)
 
-  method scroll (_ : 'a) = ()
+  method scroll e = NSTable.scroll wtable (custom#index e)
   method on_click : 'a callback = fun _ -> ()
   method on_double_click : 'a callback = fun _ -> ()
 
-  method add_icon_column ~id ?title () = 
-    ( new gicon_column wtable custom ~tid ~cid:id ?title () :> 'a Model.icon_column )
+  val mutable cid = 0
+  method private cid = function Some c -> c 
+    | None -> cid <- succ cid ; Printf.sprintf "_%d" cid
 
-  method add_text_column ~id ?title () = 
-    ( new gtext_column wtable custom ~tid ~cid:id ?title () :> 'a Model.text_column )
+  method add_icon_column ?id ?title () = 
+    let cid = self#cid id in
+    ( new gicon_column ~wtable ~custom ~tid ~cid ?title () :> 'a Model.icon_column )
 
-  method add_tree_column ~id ?title () =
-    ( new gitext_column wtable custom ~tid ~cid:id ?title () :> 'a Model.itext_column )
+  method add_text_column ?id ?title () = 
+    let cid = self#cid id in
+    ( new gtext_column ~wtable ~custom ~tid ~cid ?title () :> 'a Model.text_column )
 
-  method add_itext_column ~id ?title () =
-    ( new gitext_column wtable custom ~tid ~cid:id ?title () :> 'a Model.itext_column )
+  method add_tree_column ?id ?title () =
+    let cid = self#cid id in
+    ( new gitext_column ~wtable ~custom ~tid ~cid ?title () :> 'a Model.itext_column )
 
-  method add_check_column ~id ?title () =
-    ( new gcheck_column wtable custom ~tid ~cid:id ?title () :> 'a Model.check_column )
+  method add_itext_column ?id ?title () =
+    let cid = self#cid id in
+    ( new gitext_column ~wtable ~custom ~tid ~cid ?title () :> 'a Model.itext_column )
+
+  method add_check_column ?id ?title () =
+    let cid = self#cid id in
+    ( new gcheck_column ~wtable ~custom ~tid ~cid ?title () :> 'a Model.check_column )
 
   method remove_colum (col : 'a column) = col#remove
 end
 
 (* -------------------------------------------------------------------------- *)
-(* --- Views                                                              --- *)
+(* --- List Views                                                         --- *)
 (* -------------------------------------------------------------------------- *)
 
-class ['a] list ~id ~(model : 'a Model.list) ?(headers=true) () =
-  let wtable = NSTable.create (NSString.of_string id) in
+class ['a] empty_list_model =
 object
-  inherit ['a] gcolumns wtable headers model ~tid:id
+  method size = 0
+  method index (_:'a):int = raise Not_found
+  method get (_:int):'a = raise Not_found
+end
+
+class ['a] custom_list m =
+object
+  val mutable model : 'a Model.list =
+    (match m with Some m -> m | None -> new empty_list_model)
+  method get = model#get
+  method index = model#index
+  method size () = model#size
+  method set_model m = model <- m
+end
+
+class ['a] list ~id ?model ?(headers=true) () =
+  let wtable = NSTable.create (NSString.of_string id) in
+  let custom = new custom_list model in
+object(self)
+  inherit ['a] gcolumns ~wtable ~headers ~custom ~tid:id
+  method set_model m = custom#set_model m ; self#reload
   initializer 
     begin
-      Items.bind wtable (fun () -> model#size) ;
+      NSTable.set_rules wtable true ;
+      ListSize.bind wtable custom#size ;
     end
 end
 
-class ['a] tree ~id ~(model : 'a Model.tree) ?(headers=true) () =
-  let wtable = NSTable.create (NSString.of_string id) in
-  let custom : 'a custom = object method get _ = raise Not_found end in
-object
-  inherit ['a] gcolumns wtable headers custom ~tid:id
-  initializer ignore model
+(* -------------------------------------------------------------------------- *)
+(* --- Tree Views                                                         --- *)
+(* -------------------------------------------------------------------------- *)
 
+class ['a] empty_tree_model =
+object
+  method children (_:'a option) = 0
+  method child_at (_:'a option) (_:int) : 'a = raise Not_found
+  method parent (_:'a) : 'a option = raise Not_found
+  method index (_:'a) : int = raise Not_found
+end
+
+class ['a] custom_tree m =
+object
+  val mutable model : 'a Model.tree =
+    (match m with Some m -> m | None -> new empty_tree_model)
+  method set_model m = model <- m
+  method get (_:int):'a = raise Not_found
+  method index (_:'a):int = raise Not_found
+end
+
+class ['a] tree ~id ?model ?(headers=true) () =
+  let wtable = NSTable.create (NSString.of_string id) in
+  let custom = new custom_tree model in
+object(self)
+  inherit ['a] gcolumns ~wtable ~headers ~custom ~tid:id
+  method set_model m = custom#set_model m ; self#reload
 end
 
 

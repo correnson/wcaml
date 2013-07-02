@@ -24,6 +24,7 @@ struct
   external add_subview : t -> t -> unit = "wcaml_nsview_add_subview"
   external has_baseline : t -> bool = "wcaml_nsview_has_baseline"
   external set_layout : t -> int -> t -> t -> int -> unit = "wcaml_nsview_set_layout"
+  external set_autolayout : t -> bool -> unit = "wcaml_nsview_set_autolayout"
   external debug : t -> unit = "wcaml_nsview_debug"
 
   let kHsep      = 0b0000

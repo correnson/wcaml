@@ -8,14 +8,68 @@ open Port
 open Portcontrol
 open NSView
 
-(* -------------------------------------------------------------------------- *)
-(* --- Forms Layout                                                       --- *)
-(* -------------------------------------------------------------------------- *)
-
 let dHsep =  8 (* Horizontal Separation *)
 let dVsep =  6 (* Vertical Separation *)
 let dBorder = 12 (* Section Separation *)
 let dSection = 24 (* Empty Line Separation *)
+
+(* -------------------------------------------------------------------------- *)
+(* --- Toolbar Layout                                                     --- *)
+(* -------------------------------------------------------------------------- *)
+
+let baseline box (chain : NSView.t list) =
+  if chain <> [] then
+    let line = 
+      try List.find NSView.has_baseline chain 
+      with Not_found -> List.hd chain in
+    List.iter
+      (fun ctrl -> if ctrl != line then
+	 NSView.set_layout box kBaseline line ctrl 0)
+      chain
+      
+let rec horizontal box = function
+  | [] -> ()
+  | [last] -> 
+      NSView.set_layout box kHfill last box dHsep
+  | a::((b::_) as trail) ->
+      NSView.set_layout box kHsep a b dHsep ;
+      horizontal box trail
+
+let vertical box a c b =
+  begin
+    NSView.set_layout box kVsep a c dVsep ;
+    NSView.set_layout box kVsep c b dVsep ;
+  end
+
+class toolbar (controls : Widget.widget list) (content : Widget.pane) =
+  let box = NSView.create () in
+  let ctrls = List.map NSView.get controls in
+  let pane = NSView.get content in
+object
+  inherit NSView.pane box
+  initializer
+    begin
+      NSView.add_subview box pane ;
+      NSView.set_autolayout pane false ;
+      NSView.set_layout box kHsep box pane 0 ;
+      NSView.set_layout box kHsep pane box 0 ;
+      NSView.set_layout box kVsep pane box 0 ;
+      if ctrls = [] then 
+	NSView.set_layout box kVsep box pane 0
+      else
+	begin
+	  List.iter (NSView.add_subview box) ctrls ;
+	  baseline box ctrls ;
+	  horizontal box (box::ctrls) ;
+	  List.iter (fun c -> vertical box box c pane) ctrls ;
+	end ;
+      Main.on_main (fun () -> NSView.debug pane)
+    end
+end
+
+(* -------------------------------------------------------------------------- *)
+(* --- Forms Layout                                                       --- *)
+(* -------------------------------------------------------------------------- *)
 
 class form () =
   let box = NSView.create () in
@@ -52,15 +106,6 @@ object(self)
 	lastctr <- left
     | _ -> ()
 
-  method private baseline_layout (chain : NSView.t list) =
-    let line = 
-      try List.find NSView.has_baseline chain 
-      with Not_found -> List.hd chain in
-    List.iter
-      (fun ctrl -> if ctrl != line then
-	 NSView.set_layout box kBaseline line ctrl 0)
-      chain
-
   method private horizontal_layout = function
     | [] -> ()
     | (first::_) as chain ->
@@ -73,6 +118,8 @@ object(self)
 	      NSView.set_layout box kHsep a b dHsep ;
 	      hbox others
 	in hbox chain
+	     
+  method private baseline_layout chain = baseline box chain
 
   method private add_row label ctrls =
     if ctrls <> [] then
@@ -132,6 +179,7 @@ object(self)
       | Some _ -> self#add_row label [view]
       | None ->
 	  NSView.add_subview box view ;
+	  NSView.set_autolayout view false ;
 	  let row = [view] in
 	  self#horizontal_layout row ;
 	  self#vertical_layout row ;

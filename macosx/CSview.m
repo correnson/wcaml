@@ -7,8 +7,13 @@
 value wcaml_nsview_create(value vunit)
 {
   NSView *box = [[NSView alloc] init];
-  [box setTranslatesAutoresizingMaskIntoConstraints:YES];
   return (value) box;
+}
+
+value wcaml_nsview_set_autolayout(value vpane,value vauto)
+{
+  NSView *box = ID(NSView,vpane);
+  [box setTranslatesAutoresizingMaskIntoConstraints:BOOL(vauto)];
 }
 
 value wcaml_nsview_set_tooltip(value vcell,value vtooltip)
