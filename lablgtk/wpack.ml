@@ -85,7 +85,7 @@ let make_resources () =
     command (Printf.sprintf "mkdir -p %s" !resources) ;
     List.iter
       (fun img -> command
-	 (Printf.sprintf "cp $(ocamlfind query wcaml)/share/%s %s/%s"
+	 (Printf.sprintf "cp $(ocamlfind query wcaml)/%s %s/%s"
 	    img !resources img
 	 )) icons ;
     List.iter

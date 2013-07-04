@@ -7,6 +7,29 @@ open Widget
 open Port
 
 (* -------------------------------------------------------------------------- *)
+(* --- Generic Model Interface                                            --- *)
+(* -------------------------------------------------------------------------- *)
+
+class type ['a] items =
+object
+  method w_path_of_item : 'a -> Gtk.tree_path (* May raise Not_found *)
+  method w_item_of_path : Gtk.tree_path -> 'a (* May raise Not_found *)
+  method w_item_of_iter : Gtk.tree_iter -> 'a (* May raise Not_found *)
+end
+
+class type ['a,'b] custom =
+object
+  inherit GTree.model
+  inherit ['a] items
+  method w_reload : unit
+  method w_reload_node : 'a -> unit
+  method w_update_item : 'a -> unit
+  method w_added : 'a -> unit
+  method w_removed : 'a -> unit
+  method w_set_model : 'b -> unit
+end
+
+(* -------------------------------------------------------------------------- *)
 (* --- Custom List Model                                                  --- *)
 (* -------------------------------------------------------------------------- *)
 
@@ -17,56 +40,128 @@ object
   method get (_:int):'a = raise Not_found
 end
 
-class ['a] list_model (m0 : 'a Model.list option) =
-  let m0 = match m0 with Some m0 -> m0 | None -> new empty_list_model in
-object
-  inherit ['a,'a,unit,unit] GTree.custom_tree_model (new GTree.column_list)
-  val mutable model : 'a Model.list = m0
-  method set_usermodel m = model <- m
+let pp fmt = function 
+  | None -> Format.pp_print_string fmt "-"
+  | Some d -> Format.fprintf fmt "<%d>" d
+
+class ['a] custom_list_model =
+object(self)
+  inherit [int,int,unit,unit] GTree.custom_tree_model (new GTree.column_list)
   method! custom_flags = [`LIST_ONLY]
-  method custom_decode_iter a () () = a
-  method custom_encode_iter a = (a,(),())
-  method custom_value (_:Gobject.g_type) (_:'a) ~column:_ = 
+  val mutable size = 0
+  val mutable model : 'a Model.list = new empty_list_model
+
+  (* Item Access *)
+
+  method w_item_of_iter (iter : Gtk.tree_iter) : 'a =
+    self#w_item_of_path (self#get_path iter)
+      
+  method w_item_of_path (path : Gtk.tree_path) : 'a =
+    match GtkTree.TreePath.get_indices path with
+      | [|i|] when i < size -> model#get i
+      | _ -> raise Not_found
+
+  method w_path_of_item (e : 'a) : Gtk.tree_path =
+    GtkTree.TreePath.create [model#index e]
+
+  (* Reload Data *)
+
+  method w_reload = self#w_set_model model
+
+  method w_reload_node = self#w_update_item
+
+  method w_update_item (e : 'a) =
+    try
+      let i = model#index e in
+      let p = GtkTree.TreePath.create [i] in
+      self#custom_row_changed p i
+    with Not_found -> ()
+
+  method w_added e =
+    try
+      let i = model#index e in
+      let p = GtkTree.TreePath.create [i] in
+      self#custom_row_inserted p i
+    with Not_found -> self#w_reload
+
+  method w_removed e =
+    try
+      let i = model#index e in
+      let path = GtkTree.TreePath.create [i] in
+      self#custom_row_deleted path
+    with Not_found -> self#w_reload
+
+  method w_set_model (m : 'a Model.list) = 
+    begin
+      let n = m#size in
+      if size < n then
+	for i = size to n-1 do
+	  let path = GtkTree.TreePath.create [i] in
+	  self#custom_row_inserted path i ;
+	done ;
+      if size > n then
+	for i = size-1 downto n do
+	  let path = GtkTree.TreePath.create [n] in
+	  self#custom_row_deleted path ;
+	done ;
+      size <- n ;
+      for i = 0 to size - 1 do
+	let path = GtkTree.TreePath.create [i] in
+	self#custom_row_changed path i ;
+      done ;
+      model <- m ;
+    end
+
+  (* Iter Wrapping *)
+
+  method custom_decode_iter i () () = i
+  method custom_encode_iter i = (i,(),())
+  method custom_value (_:Gobject.g_type) (_:int) ~column:_ = 
     failwith "GwList: empty columns"
 
-  method custom_get_iter (path : Gtk.tree_path) : 'a option =
-    let idx:int array = GtkTree.TreePath.get_indices path in
-    match idx with 
-      | [| |] -> None
-      | [|i|] -> (try let e = model#get i in Some e with Not_found -> None)
-      | _ -> failwith "Invalid path of depth>1 in a list"
+  (* Path-To-Iter *)
 
-  method custom_get_path (e : 'a) : Gtk.tree_path = 
-    try GtkTree.TreePath.create [model#index e]
-    with Not_found -> GtkTree.TreePath.create []
+  method custom_get_iter (path : Gtk.tree_path) : int option =
+    match GtkTree.TreePath.get_indices path with 
+      | [|i|] when i < size -> Some i
+      | _ -> None
+	  
+  (* Iter-To-Path *)
+
+  method custom_get_path (e : int) : Gtk.tree_path = 
+    GtkTree.TreePath.create [e]
     
-  method custom_iter_has_child (_:'a) = false
+  (* Iter Navigation *)
+
+  method custom_iter_has_child (_:int) = false
   
   method custom_iter_children = function
-    | None when model#size > 0 -> Some(model#get 0)
+    | None when size > 0 -> Some 0
     | _ -> None
 
   method custom_iter_n_children = function
     | Some _ -> failwith "GwList: no children"
-    | None -> model#size
+    | None -> size
 
   method custom_iter_nth_child r k = match r with
     | Some _ -> failwith "GwList: no nth-child"
-    | None -> if k < model#size then Some (model#get k) else None
+    | None -> if k < size then Some k else None
 	
-  method custom_iter_parent (_:'a) = None
+  method custom_iter_parent (_:int) = None
 
-  method custom_iter_next e =
-    try 
-      let k = succ (model#index e) in
-      if k < model#size then Some (model#get k) else None
-    with Not_found -> None
+  method custom_iter_next (e:int):int option =
+    let k = succ e in
+    if k < size then Some k else None
+
 end
+
+let custom = (new custom_list_model :> ('a,'a Model.list) custom)
 
 (* -------------------------------------------------------------------------- *)
 (* --- Custom Tree Model                                                  --- *)
 (* -------------------------------------------------------------------------- *)
 
+(*
 let rec get_iter m r idx k =
   if k >= Array.length idx then r else
     let a = m#child_at r idx.(k) in
@@ -122,15 +217,11 @@ object
     if k < model#children p then Some (model#child_at p k) else None
       
 end
+*)
 
 (* -------------------------------------------------------------------------- *)
 (* --- Click Handling Class                                               --- *)
 (* -------------------------------------------------------------------------- *)
-
-class type ['a] custom =
-object
-  method custom_get_iter : Gtk.tree_path -> 'a option
-end
 
 let is_column gcol ucol = match gcol , ucol with
   | _ , None -> true
@@ -140,7 +231,7 @@ let is_column gcol ucol = match gcol , ucol with
 class ['a] click_signals 
   (gtree : GTree.view) 
   (gcol : GTree.view_column option) 
-  (model : 'a #custom)
+  (model : 'a #items)
   =
   let c1 : 'a signal = new Event.signal in
   let c2 : 'a signal = new Event.signal in
@@ -159,19 +250,13 @@ object(self)
   method private cb1 () =
     match gtree#get_cursor () with
       | Some path , ucol when is_column gcol ucol ->
-	  begin match model#custom_get_iter path with
-	    | None -> ()
-	    | Some item -> c1#fire item
-	  end
+	  (try c1#fire (model#w_item_of_path path) with Not_found -> ())
       | _ -> ()
 
   (* Simple click callback *)
   method private cb2 path col =
     if is_column gcol (Some col) then
-      begin match model#custom_get_iter path with
-	| None -> ()
-	| Some item -> c2#fire item
-      end
+      (try c2#fire (model#w_item_of_path path) with Not_found -> ())
 
   method on_click f = 
     if sid1 = None then
@@ -192,7 +277,7 @@ end
 class ['a] gcolumn 
   (gtree:GTree.view) 
   (gcol:GTree.view_column)
-  (model:'a #custom)
+  (gmodel:'a items)
   (id:string) =
   let s : Model.sorting selector = new Event.selector `Unsorted in
 object(self)
@@ -207,7 +292,7 @@ object(self)
       s#connect self#cbi ;
     end
 
-  inherit ['a] click_signals gtree (Some gcol) model
+  inherit ['a] click_signals gtree (Some gcol) (gmodel : 'a items)
 
   method gcol = gcol
 
@@ -263,18 +348,17 @@ let tags_of_icon (icn:Widget.icon) = match icn with
 (* -------------------------------------------------------------------------- *)
 
 class ['a] gicon_column 
-  (gtree:GTree.view) (model:'a #custom)
-  ~(id:string) ?title () =
+  (gtree:GTree.view) (gmodel:'a #items) ~(id:string) ?title () =
   let gcol = GTree.view_column ?title () in
   let gcell = GTree.cell_renderer_pixbuf [] in
 object(self)
-  inherit ['a] gcolumn gtree gcol model id
+  inherit ['a] gcolumn gtree gcol (gmodel :> 'a items) id
   val mutable renderer : 'a -> Widget.icon = fun _ -> `NoIcon
-  method private updated m i =
-    gcol#clear_attributes gcell ;
-    match model#custom_get_iter (m#get_path i) with
-      | None -> ()
-      | Some e -> gcell#set_properties (tags_of_icon (renderer e))
+  method private updated (_ : GTree.model) iter =
+    try 
+      let e = gmodel#w_item_of_iter iter in
+      gcell#set_properties (tags_of_icon (renderer e))
+    with Not_found -> ()
   method set_renderer f = renderer <- f
   initializer 
     begin
@@ -306,9 +390,7 @@ let tags_of_bg = function
   | `Default -> []
   | c -> [`CELL_BACKGROUND (Port.bg c)]
       
-class gtext_cell 
-  (gcol : GTree.view_column) 
-  (field : GTree.cell_renderer_text) =
+class gtext_cell (field : GTree.cell_renderer_text) =
 object
   val mutable text = ""
   val mutable align : align = `Left
@@ -324,7 +406,6 @@ object
       editable <- e ;
       fg <- `Default ;
       bg <- `Default ;
-      gcol#clear_attributes field ;
     end
   method set_icon (_:Widget.icon) = ()
   method set_align a = align <- a
@@ -346,23 +427,21 @@ end
 (* -------------------------------------------------------------------------- *)
 
 class gitext_cell 
-  (gcol : GTree.view_column)
   (image : GTree.cell_renderer_pixbuf)
   (field : GTree.cell_renderer_text) =
 object
-  inherit gtext_cell gcol field as gtext
+  inherit gtext_cell field as super
   val mutable icon = `NoIcon
   method! set_icon icn = icon <- icn
   method! clear a s e = 
     begin
-      gtext#clear a s e ; 
+      super#clear a s e ; 
       icon <- `NoIcon ;
-      gcol#clear_attributes image ;
     end
   method! apply : unit =
     begin
       image#set_properties (tags_of_icon icon) ;
-      gtext#apply ;
+      super#apply ;
     end
 end
 
@@ -371,7 +450,6 @@ end
 (* -------------------------------------------------------------------------- *)
 
 class gcheck_cell
-  (gcol : GTree.view_column)
   (b : GTree.cell_renderer_toggle)
   (t : GTree.cell_renderer_text) =
 object
@@ -384,8 +462,6 @@ object
     begin
       text <- "";
       checked <- false;
-      gcol#clear_attributes b ;
-      gcol#clear_attributes t ;
     end
   method apply : unit =
     begin
@@ -402,7 +478,7 @@ class ['a] gtext_signals
   (gcol : GTree.view_column)
   (gcell : GTree.cell_renderer_text) 
   (gtext : #gtext_cell)
-  (model : 'a #custom) =
+  (model : 'a #items) =
 object(self)
   val mutable align = `Left
   val mutable style = `Label
@@ -423,16 +499,16 @@ object(self)
 	  ignore (gcell#connect#edited ~callback:self#edited) ;
 	end
     end
-  method private updated m i =
-    let p = m#get_path i in
-    gtext#clear align style editable ;
-    match model#custom_get_iter p with
-      | None -> ()
-      | Some e -> render (gtext :> 'b) e ; gtext#apply
-  method private edited p s =
-    match model#custom_get_iter p with
-      | None -> ()
-      | Some e -> editor e s
+  method private updated (_:GTree.model) (iter:Gtk.tree_iter) =
+    try
+      gtext#clear align style editable ;
+      let e = model#w_item_of_iter iter in
+      render (gtext :> 'b) e ; 
+      gtext#apply ;
+    with Not_found -> ()
+  method private edited (path:Gtk.tree_path) (s:string) =
+    try editor (model#w_item_of_path path) s
+    with Not_found -> ()
   initializer
     begin
       gcol#set_alignment 0.0 ;
@@ -448,14 +524,16 @@ end
 (* -------------------------------------------------------------------------- *)
 
 class ['a] gtext_column 
-  (gtree:GTree.view) (model:'a #custom)
-  ~(id:string) ?title () =
+  (gtree:GTree.view) 
+  (gmodel:'a #items)
+  ~(id:string) 
+  ?title () =
   let gcol = GTree.view_column ?title () in
   let gcell = GTree.cell_renderer_text [] in
-  let gtext = new gtext_cell gcol gcell in
+  let gtext = new gtext_cell gcell in
 object
-  inherit ['a] gcolumn gtree gcol model id
-  inherit ['a] gtext_signals gcol gcell gtext model
+  inherit ['a] gcolumn gtree gcol (gmodel :> 'a items) id
+  inherit ['a] gtext_signals gcol gcell gtext (gmodel :> 'a items)
 end
 
 (* -------------------------------------------------------------------------- *)
@@ -463,17 +541,21 @@ end
 (* -------------------------------------------------------------------------- *)
 
 class ['a] gitext_column 
-  (gtree:GTree.view) (model:'a #custom)
-  ~(id:string) ?(expander=false) ?title () =
+  (gtree:GTree.view) 
+  (gmodel:'a #items)
+  ~(id:string) 
+  ?(expander=false) 
+  ?title () =
   let gcol = GTree.view_column ?title () in
   let gimage = GTree.cell_renderer_pixbuf [] in 
   let gfield = GTree.cell_renderer_text [] in
-  let gtext = new gitext_cell gcol gimage gfield in
+  let gtext = new gitext_cell gimage gfield in
 object
-  inherit ['a] gcolumn gtree gcol model id
+  inherit ['a] gcolumn gtree gcol (gmodel :> 'a items) id
   initializer if expander then gtree#set_expander_column (Some gcol)
   initializer gcol#pack ~expand:false gimage
-  inherit ['a] gtext_signals gcol gfield (gtext :> gtext_cell) model
+  inherit ['a] gtext_signals gcol gfield 
+    (gtext :> gtext_cell) (gmodel :> 'a items)
 end
 
 (* -------------------------------------------------------------------------- *)
@@ -481,27 +563,32 @@ end
 (* -------------------------------------------------------------------------- *)
 
 class ['a] gcheck_column 
-  (gtree:GTree.view) (model:'a #custom)
-  ~(id:string) ?title () =
+  (gtree:GTree.view) 
+  (gmodel:'a #items)
+  ~(id:string) 
+  ?title () =
   let gcol = GTree.view_column ?title () in
   let gtoggle = GTree.cell_renderer_toggle [] in
   let gtitle = GTree.cell_renderer_text [] in
-  let gcheck = new gcheck_cell gcol gtoggle gtitle in
+  let gcheck = new gcheck_cell gtoggle gtitle in
 object(self)
-  inherit ['a] gcolumn gtree gcol model id
+  inherit ['a] gcolumn gtree gcol (gmodel :> 'a items) id
   val mutable renderer : Model.check_cell -> 'a -> unit = fun _ _ -> ()
   val mutable callback : 'a -> bool -> unit = fun _ _ -> ()
-  method private updated m i =
+  method private updated (_:GTree.model) (iter:Gtk.tree_iter) =
     gcheck#clear ;
-    match model#custom_get_iter (m#get_path i) with
-      | None -> ()
-      | Some e -> renderer (gcheck :> Model.check_cell) e ; gcheck#apply
-  method private toggled p =
-    match model#custom_get_iter p with
-      | None -> ()
-      | Some e -> 
-	  renderer (gcheck :> Model.check_cell) e ;
-	  callback e gcheck#checked
+    try
+      let e = gmodel#w_item_of_iter iter in
+      renderer (gcheck :> Model.check_cell) e ; 
+      gcheck#apply
+    with Not_found -> ()
+  method private toggled (p:Gtk.tree_path) =
+    try
+      let e = gmodel#w_item_of_path p in
+      renderer (gcheck :> Model.check_cell) e ;
+      let s = gcheck#checked in
+      callback e (not s)
+    with Not_found -> ()
 	  
   method set_renderer f = renderer <- f
   method set_editable f = callback <- f
@@ -522,55 +609,36 @@ end
 (* --- Base View Class                                                    --- *)
 (* -------------------------------------------------------------------------- *)
 
-class ['a,'b] gtable headers model =
-  let gtree = GTree.view ~model
+class ['a,'b] gtable headers (gmodel : ('a,'b) custom) =
+  let gtree = GTree.view 
+    ~model:(gmodel :> GTree.model)
     ~fixed_height_mode:true 
     ~headers_visible:headers
     ~headers_clickable:headers
     ~reorderable:true
-    ~rules_hint:true () in
+    ~rules_hint:true () 
+  in
 object(self)
 
-  method set_model (m : 'b) = 
-    begin
-      model#set_usermodel m ;
-      gtree#set_model (Some model :> GTree.model option) ;
-    end
+  method set_model (m : 'b) : unit = gmodel#w_set_model m
 
   inherit Port.pane gtree
-  inherit ['a] click_signals gtree None model
+  inherit ['a] click_signals gtree None gmodel
 
   val mutable scol = None
     
-  method scroll e = match scol with
-    | Some col -> gtree#scroll_to_cell (model#custom_get_path e) col
-    | _ -> ()
-
-  method reload = 
-    begin
-      gtree#set_model None ;
-    end
-
-  method reload_node e =
-    try
-      let p = model#custom_get_path e in
-      model#custom_row_has_child_toggled p e
-    with Not_found -> ()
-	    
-  method update_item e =
-    try model#custom_row_changed (model#custom_get_path e) e
+  method scroll e = 
+    try match scol with
+      | Some col -> gtree#scroll_to_cell (gmodel#w_path_of_item e) col
+      | None -> ()
     with Not_found -> ()
 
-  method update = 
-    GtkBase.Widget.queue_draw gtree#as_tree_view
-
-  method added (e : 'a) : unit = 
-    try model#custom_row_inserted (model#custom_get_path e) e
-    with Not_found -> ()
-
-  method removed (e : 'a) : unit =
-    try model#custom_row_deleted (model#custom_get_path e)
-    with Not_found -> ()
+  method reload = gmodel#w_reload
+  method reload_node = gmodel#w_reload_node
+  method update_item = gmodel#w_update_item
+  method update = GtkBase.Widget.queue_draw gtree#as_tree_view
+  method added = gmodel#w_added
+  method removed = gmodel#w_removed
 
   val mutable cid = 0
   method private cid = function
@@ -579,32 +647,32 @@ object(self)
 
   method add_icon_column ?id ?title () =
     let id = self#cid id in
-    let column = new gicon_column gtree model ~id ?title () in
+    let column = new gicon_column gtree gmodel ~id ?title () in
     if scol = None then scol <- Some column#gcol ;
     ( column :> 'a Model.icon_column )
 
   method add_text_column ?id ?title () =
     let id = self#cid id in
-    let column = new gtext_column gtree model ~id ?title () in
+    let column = new gtext_column gtree gmodel ~id ?title () in
     if scol = None then scol <- Some column#gcol ;
     ( column :> 'a Model.text_column )
 
   method add_tree_column ?id ?title () =
     let id = self#cid id in
-    let column = new gitext_column gtree model ~id ?title 
+    let column = new gitext_column gtree gmodel ~id ?title 
       ~expander:true () in
     scol <- Some column#gcol ;
     ( column :> 'a Model.itext_column )
 
   method add_itext_column ?id ?title () =
     let id = self#cid id in
-    let column = new gitext_column gtree model ~id ?title () in
+    let column = new gitext_column gtree gmodel ~id ?title () in
     if scol = None then scol <- Some column#gcol ;
     ( column :> 'a Model.itext_column )
 
   method add_check_column ?id ?title () =
     let id = self#cid id in
-    let column = new gcheck_column gtree model ~id ?title () in
+    let column = new gcheck_column gtree gmodel ~id ?title () in
     if scol = None then scol <- Some column#gcol ;
     ( column :> 'a Model.check_column )
 
@@ -613,13 +681,17 @@ object(self)
 end
 
 class ['a] list ~(id:string) ?model ?(headers=true) () =
-object
-  inherit ['a,'a Model.list] gtable headers (new list_model model)
+object(self)
+  inherit ['a,'a Model.list] gtable headers 
+    (new custom_list_model :> ('a,'a Model.list) custom)
   initializer ignore id
+  initializer Event.option self#set_model model
 end
 
 class ['a] tree ~(id:string) ?model ?(headers=true) () =
+  let gmodel = assert false in
 object
-  inherit ['a,'a Model.tree] gtable headers (new tree_model model)
+  inherit ['a,'a Model.tree] gtable headers gmodel
   initializer ignore id
+  initializer ignore (model : 'a Model.tree option)
 end
